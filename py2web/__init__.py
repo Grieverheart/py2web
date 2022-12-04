@@ -40,26 +40,48 @@ class Application(object):
 
         return rect
 
-    def _render_rect(self, rect_id):
+    def _render_rect_html(self, rect_id):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
         html = '<div id="%s">' % rect_node[1]
         for i in range(3, len(rect_node)):
-            html += self._render_rect(rect_node[i])
+            html += self._render_rect_html(rect_node[i])
         html += '</div>'
         return html
+
+    def _render_rect_css(self, rect_id):
+        css = '\n'
+        rect_node = self.rectangles[rect_id]
+        rect = rect_node[0]
+        css += '#%s {\n' % rect_node[1]
+        css += 'display: block;\n'
+        css += 'position: absolute;\n'
+        css += 'width: %f%%;\n' % (100 * rect.size[0])
+        css += 'height: %f%%;\n' % (100 * rect.size[1])
+        css += 'background-color: red;\n'
+        css += '}\n'
+        return css
 
     # @todo: Add css/ids.
     def render(self):
         html = '<!DOCTYPE html><html>'
-        html += '<head><title>py2web-generated document</title></head>'
+        html += '<head>'
+        html += '<title>py2web-generated document</title>'
+        html += '<link rel="stylesheet" href="style.css">'
+        html += '</head>'
         html += '<body>'
         root = self.rectangles[self.root_id]
         for i in range(len(root)):
-            html += self._render_rect(root[i])
+            html += self._render_rect_html(root[i])
         html += '</body>'
         html += '</html>'
-        return html
+
+        css = ''
+        for rn in self.rectangles:
+            if rn == self.root_id:
+                continue
+            css += self._render_rect_css(rn)
+        return html, css
 
 class Style(object):
     def __init__(self):

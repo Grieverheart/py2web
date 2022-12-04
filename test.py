@@ -33,6 +33,8 @@ from py2web import Application, Corner, ViewportWidth, ViewportHeight, Pivot
 # children.
 # @idea: To create visual scope instead of doing the equivalent Begin/End of
 # dear imgui, we can use 'with .. as ..' syntax!
+# @note: We also probably want to keep a "cursor" like dear imgui so that we don't
+# have to explicitly set the position everytime?
 
 if __name__ == '__main__':
 
@@ -66,8 +68,11 @@ if __name__ == '__main__':
     main_content.set_position([0, 0.05])
     main_content.set_size([1.0, 0.95])
 
-    html = app.render()
+    html, css = app.render()
 
-    with open('home.html', 'w') as fp:
+    with open('index.html', 'w') as fp:
         fp.write(html)
+
+    with open('style.css', 'w') as fp:
+        fp.write(css)
 
