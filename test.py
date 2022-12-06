@@ -1,4 +1,4 @@
-from py2web import Application, Corner, ViewportWidth, ViewportHeight, Pivot
+from py2web import Application, ViewportWidth, ViewportHeight, Pivot
 
 # Goal 1: Create a website skeleton similar to nicktasios.nl/projects/:
 #

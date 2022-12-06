@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Union
+from typing import Union, Tuple
 from numbers import Number
 
 class Pivot(Enum):
@@ -8,12 +8,6 @@ class Pivot(Enum):
     TOP_RIGHT    = 2
     BOTTOM_RIGHT = 3
     BOTTOM_LEFT  = 4
-
-class Corner(Enum):
-    TOP_LEFT     = 0
-    TOP_RIGHT    = 1
-    BOTTOM_RIGHT = 2
-    BOTTOM_LEFT  = 3
 
 class Application(object):
 
@@ -54,8 +48,22 @@ class Application(object):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
         css += '#%s {\n' % rect_node[1]
-        css += 'display: block;\n'
+        #css += 'display: block;\n'
         css += 'position: absolute;\n'
+
+        if rect.pivot == Pivot.TOP_LEFT:
+            css += 'left: %f%%;\n' % (100 * rect.position[0])
+            css += 'top: %f%%;\n' % (100 * rect.position[1])
+        elif rect.pivot == Pivot.TOP_RIGHT:
+            css += 'right: %f%%;\n' % (100 * rect.position[0])
+            css += 'top: %f%%;\n' % (100 * rect.position[1])
+        elif rect.pivot == Pivot.BOTTOM_LEFT:
+            css += 'left: %f%%;\n' % (100 * rect.position[0])
+            css += 'bottom: %f%%;\n' % (100 * rect.position[1])
+        else:
+            css += 'right: %f%%;\n' % (100 * rect.position[0])
+            css += 'bottom: %f%%;\n' % (100 * rect.position[1])
+
         css += 'width: %f%%;\n' % (100 * rect.size[0])
         css += 'height: %f%%;\n' % (100 * rect.size[1])
         css += 'background-color: red;\n'
@@ -82,10 +90,6 @@ class Application(object):
                 continue
             css += self._render_rect_css(rn)
         return html, css
-
-class Style(object):
-    def __init__(self):
-        pass
 
 class Expression(object):
 
@@ -133,57 +137,15 @@ class Rectangle(object):
         # @todo: Perhaps set to None and add warnings when something is not set.
         self.position = [0,0]
         self.size     = [1,1]
-        self.style    = Style()
-
-    #def __repr__(self):
-    #    return f'position: {self.position}\n'+\
-    #           f'size: {self.size}'
+        self.style    = {}
+        self.pivot    = Pivot.TOP_LEFT
 
     def set_size(self, size: Coord2d):
         self.size = size
 
     def set_position(self, position: Coord2d, pivot: Pivot = Pivot.TOP_LEFT):
         self.position = position
-
-    def get_corner_position(self, corner: Corner):
-        if corner == Corner.TOP_LEFT:
-            return self.position
-        elif corner == Corner.TOP_RIGHT:
-            return (self.position[0] + self.size[0], self.position[1])
-        elif corner == Corner.BOTTOM_RIGHT:
-            return (self.position[0] + self.size[0], self.position[1] + self.size[1])
-        else:
-            return (self.position[0], self.position[1] + self.size[1])
-
-    def set_corner_position(self, corner: Corner, position: Coord2d):
-        if corner == Corner.TOP_LEFT:
-            self.position = position
-            self.size = (
-                self.size[0] + self.position[0] - position[0],
-                self.size[1] + self.position[1] - position[1]
-            )
-
-        elif corner == Corner.TOP_RIGHT:
-            self.position = (self.position[0], position[1])
-            self.size = (
-                position[0] - self.position[0],
-                self.size[1] + self.position[1] - position[1]
-            )
-
-        elif corner == Corner.BOTTOM_RIGHT:
-            # @todo
-            self.position = (self.position[0], position[1])
-            self.size = (
-                position[0] - self.position[0],
-                self.size[1] + self.position[1] - position[1]
-            )
-        else:
-            # @todo
-            self.position = (self.position[0], position[1])
-            self.size = (
-                position[0] - self.position[0],
-                self.size[1] + self.position[1] - position[1]
-            )
+        self.pivot    = pivot
 
 ViewportWidth  = Expression('vw')
 ViewportHeight = Expression('vh')
