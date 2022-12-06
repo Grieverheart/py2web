@@ -66,7 +66,11 @@ class Application(object):
 
         css += 'width: %f%%;\n' % (100 * rect.size[0])
         css += 'height: %f%%;\n' % (100 * rect.size[1])
-        css += 'background-color: red;\n'
+
+        for k, v in rect.style.items():
+            print('%s: %s' % (k, v))
+            css += '%s: %s' % (k, v)
+
         css += '}\n'
         return css
 
@@ -128,6 +132,35 @@ class Expression(object):
     def __pow__(self, other: Type):
         return Expression('pow', (self, other))
 
+def _get_css_color(*color):
+    if len(color) == 1:
+        color = color[0]
+
+    if isinstance(color, str):
+        # @todo: Perhaps validate hex colors?
+        return color
+    elif hasattr(color, '__iter__'):
+        css_color = list(color)
+        if len(css_color) < 3 or len(css_color) > 4:
+            # @todo: Warning
+            return None
+
+        is_float = False
+        for c in css_color:
+            if isinstance(c, float):
+                is_float = True
+                break
+
+        if is_float:
+            css_color = [int(255 * x) for x in css_color]
+        
+        tag = 'rgb' if len(css_color) == 3 else 'rgba'
+        css_color = '%s(%s)' % (tag, str(css_color)[1:-1])
+        return css_color
+
+    print('Did not recognize color type: ', type(color))
+    return None
+
 # @todo: We perhaps want to perform vector operations on Coord2d.
 # Maybe we want to make a class out of this.
 Coord2d = [Expression.Type, Expression.Type]
@@ -146,6 +179,10 @@ class Rectangle(object):
     def set_position(self, position: Coord2d, pivot: Pivot = Pivot.TOP_LEFT):
         self.position = position
         self.pivot    = pivot
+
+    def set_fill_color(self, *color):
+        css_color = _get_css_color(color)
+        self.style['background-color'] = css_color
 
 ViewportWidth  = Expression('vw')
 ViewportHeight = Expression('vh')

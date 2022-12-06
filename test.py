@@ -1,4 +1,4 @@
-from py2web import Application, ViewportWidth, ViewportHeight, Pivot
+from py2web import Application, ViewportWidth, ViewportHeight, Pivot, _get_css_color
 
 # Goal 1: Create a website skeleton similar to nicktasios.nl/projects/:
 #
@@ -43,6 +43,7 @@ if __name__ == '__main__':
     header = app.create_rectangle(name='header')
     header.set_position([0,0])
     header.set_size([1.0, 0.05])
+    header.set_fill_color(39, 40, 34)
 
     header_home_button = app.create_rectangle(header, 'home_button')
     header_home_button.set_position([0,0])
@@ -67,6 +68,7 @@ if __name__ == '__main__':
     main_content = app.create_rectangle(name='main_content')
     main_content.set_position([0, 0.05])
     main_content.set_size([1.0, 0.95])
+    main_content.set_fill_color(64, 64, 64)
 
     html, css = app.render()
 
