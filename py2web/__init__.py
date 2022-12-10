@@ -18,6 +18,10 @@ class Application(object):
         self.rectangles = {}
         self.root_id = id(self)
         self.rectangles[self.root_id] = []
+        self.metadata = None
+
+    def set_metadata(self, metadata):
+        self.metadata = metadata
 
     def create_rectangle(self, rect_parent=None, name=None):
         rect = Rectangle()
@@ -38,6 +42,8 @@ class Application(object):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
         html = '<div id="%s">' % rect_node[1]
+        if rect.text is not None:
+            html += rect.text
         for i in range(3, len(rect_node)):
             html += self._render_rect_html(rect_node[i])
         html += '</div>'
@@ -68,18 +74,17 @@ class Application(object):
         css += 'height: %f%%;\n' % (100 * rect.size[1])
 
         for k, v in rect.style.items():
-            print('%s: %s' % (k, v))
-            css += '%s: %s' % (k, v)
+            css += '%s: %s;' % (k, v)
 
         css += '}\n'
         return css
 
-    # @todo: Add css/ids.
     def render(self):
         html = '<!DOCTYPE html><html>'
         html += '<head>'
         html += '<title>py2web-generated document</title>'
         html += '<link rel="stylesheet" href="style.css">'
+        html += self.metadata
         html += '</head>'
         html += '<body>'
         root = self.rectangles[self.root_id]
@@ -170,8 +175,9 @@ class Rectangle(object):
         # @todo: Perhaps set to None and add warnings when something is not set.
         self.position = [0,0]
         self.size     = [1,1]
-        self.style    = {}
         self.pivot    = Pivot.TOP_LEFT
+        self.text     = None
+        self.style    = {}
 
     def set_size(self, size: Coord2d):
         self.size = size
@@ -180,9 +186,19 @@ class Rectangle(object):
         self.position = position
         self.pivot    = pivot
 
+    def set_text(self, text):
+        self.text = text
+
     def set_fill_color(self, *color):
         css_color = _get_css_color(color)
         self.style['background-color'] = css_color
+
+    def set_text_color(self, *color):
+        css_color = _get_css_color(color)
+        self.style['color'] = css_color
+
+    def set_font(self, font_name):
+        self.style['font-family'] = font_name
 
 ViewportWidth  = Expression('vw')
 ViewportHeight = Expression('vh')
