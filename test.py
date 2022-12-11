@@ -55,23 +55,25 @@ if __name__ == '__main__':
 
     header_menu = app.create_rectangle(header, 'menu')
     header_menu.set_position([0,0], pivot=Pivot.TOP_RIGHT)
-    header_menu.set_size([0.3, 1.0])
+    header_menu.set_size([0.5, 1.0])
 
     menu_about = app.create_rectangle(header_menu, 'menu_about')
     menu_about.set_position([0,0], pivot=Pivot.TOP_RIGHT)
-    menu_about.set_size([1.0/3.0, 1.0])
+    menu_about.set_height(1.0)
     menu_about.set_text('About')
     menu_about.set_text_color(248, 248, 242)
 
+    left = menu_about.get_size()[0]
     menu_blog = app.create_rectangle(header_menu, 'menu_blog')
-    menu_blog.set_position([1.0/3.0,0], pivot=Pivot.TOP_RIGHT)
-    menu_blog.set_size([1.0/3.0, 1.0])
+    menu_blog.set_position([left,0], pivot=Pivot.TOP_RIGHT)
+    menu_about.set_height(1.0)
     menu_blog.set_text('Blog')
     menu_blog.set_text_color(248, 248, 242)
 
+    left += menu_blog.get_size()[0]
     menu_projects = app.create_rectangle(header_menu, 'menu_projects')
-    menu_projects.set_position([2.0/3.0,0], pivot=Pivot.TOP_RIGHT)
-    menu_projects.set_size([1.0/3.0, 1.0])
+    menu_projects.set_position([left,0], pivot=Pivot.TOP_RIGHT)
+    menu_about.set_height(1.0)
     menu_projects.set_text('Projects')
     menu_projects.set_text_color(248, 248, 242)
 
@@ -80,11 +82,14 @@ if __name__ == '__main__':
     main_content.set_size([1.0, 1.0 - header_height])
     main_content.set_fill_color(64, 64, 64)
 
-    html, css = app.render()
+    html, css, js = app.render()
 
     with open('index.html', 'w') as fp:
         fp.write(html)
 
     with open('style.css', 'w') as fp:
         fp.write(css)
+
+    with open('code.js', 'w') as fp:
+        fp.write(js)
 
