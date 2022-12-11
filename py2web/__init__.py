@@ -55,6 +55,7 @@ class Application(object):
         rect = rect_node[0]
         css += '#%s {\n' % rect_node[1]
         #css += 'display: block;\n'
+        css += 'overflow: hidden;\n'
         css += 'position: absolute;\n'
 
         if rect.pivot == Pivot.TOP_LEFT:
@@ -199,6 +200,9 @@ class Rectangle(object):
 
     def set_font(self, font_name):
         self.style['font-family'] = font_name
+
+    def set_font_size(self, font_size):
+        self.style['font-size'] = font_size
 
 ViewportWidth  = Expression('vw')
 ViewportHeight = Expression('vh')
