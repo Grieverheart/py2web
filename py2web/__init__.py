@@ -176,10 +176,11 @@ class Application(object):
                 js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
                 js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
             js_expression = self._render_expression_js(rect.position[0])
+            js += f"const value = {js_expression};\n"
             if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
-                js += f"rect.style.left = {js_expression};\n"
+                js += f"rect.style.left = value+'px';\n"
             else:
-                js += f"rect.style.right = {js_expression};\n"
+                js += f"rect.style.right = value+'px';\n"
             js += '}\n'
 
         if isinstance(rect.position[1], Expression):
@@ -193,10 +194,11 @@ class Application(object):
                 js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
                 js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
             js_expression = self._render_expression_js(rect.position[1])
+            js += f"const value = {js_expression};\n"
             if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
-                js += f"rect.style.top = {js_expression};\n"
+                js += f"rect.style.top = value+'px';\n"
             else:
-                js += f"rect.style.bottom = {js_expression};\n"
+                js += f"rect.style.bottom = value+'px';\n"
             js += '}\n'
 
         return js
@@ -222,11 +224,12 @@ class Application(object):
                 continue
             css += self._render_rect_css(rn)
 
-        js = ''
+        js = 'window.onload = () => {\n'
         for rn in self.rectangles:
             if rn == self.root_id:
                 continue
             js += self._render_rect_js(rn)
+        js += '};\n'
 
         return html, css, js
 

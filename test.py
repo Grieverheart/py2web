@@ -51,7 +51,7 @@ if __name__ == '__main__':
     header_home_button.set_size([0.3, 1.0])
     header_home_button.set_text('NICK TASIOS')
     header_home_button.set_text_color(248, 248, 242)
-    header_home_button.set_font_size('2em')
+    header_home_button.set_font_size('34px')
 
     header_menu = app.create_rectangle(header, 'menu')
     header_menu.set_position([0,0], pivot=Pivot.TOP_RIGHT)
@@ -63,6 +63,10 @@ if __name__ == '__main__':
     menu_about.set_text('About')
     menu_about.set_text_color(248, 248, 242)
 
+    # @todo: Make this work!
+    # left = menu_about.get_size()[0] + 10
+    # @todo: What units do we use here? We wanted to ues relative units
+    # everywhere, but here it might be difficult?
     left = menu_about.get_size()[0]
     menu_blog = app.create_rectangle(header_menu, 'menu_blog')
     menu_blog.set_position([left,0], pivot=Pivot.TOP_RIGHT)
