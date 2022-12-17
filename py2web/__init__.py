@@ -66,6 +66,7 @@ class Application(object):
         self.root_id = id(self)
         self.rectangles[self.root_id] = []
         self.metadata = None
+        self.rect_settings = {}
 
     def set_metadata(self, metadata):
         self.metadata = metadata
@@ -81,9 +82,17 @@ class Application(object):
 
         name = name if name else 'rect_%d' % rect_id
         self.rectangles[rect_id] = [rect, name, rect_id_parent]
+        self.rect_settings[rect_id] = {}
         self.rectangles[rect_id_parent].append(rect_id)
 
         return rect
+
+    # @todo: Perhaps alternative to centering manually.
+    # We can implement this using css transform: translate, but for text it's
+    # a problem as wrapping is done pre-transform.
+    #def center_vertically(self, rectangle: 'Rectangle'):
+    #    rect_id = id(rectangle)
+    #    self.rect_settings[rect_id]['vcenter'] = True
 
     def _render_rect_html(self, rect_id):
         rect_node = self.rectangles[rect_id]
@@ -109,10 +118,8 @@ class Application(object):
         css += 'overflow: hidden;\n'
         css += 'position: absolute;\n'
 
-        # @todo: If we add div around text, we should produce css for aligning
-        # the text appropriately.
-        #if rect.text is not None:
-        #    pass
+        if rect.text is not None:
+            css += f'text-align: {rect.text_alignment};\n'
 
         if isinstance(rect.position[0], Number):
             if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
@@ -229,42 +236,69 @@ class Application(object):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
 
+        # @todo: Perhaps allow for a single block for both expressions.
         if isinstance(rect.position[0], Expression):
-            # @todo: First check if there are any vars in expression?
-            js = '{\n'
-            # @todo: Generate a function for setting this element's x position.
-            # @todo: I think we somehow need to add the rect_id in the
-            # expression, otherwise we don't know whose variable it is.
-            js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
-            for varname, rect_id in self._get_size_vars_in_expression(rect.position[0]):
-                rect_name = self.rectangles[rect_id][1]
-                js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
-                js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
-            js_expression = self._render_expression_js(rect.position[0])
-            js += f"const value = {js_expression};\n"
-            if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
-                js += f"rect.style.left = value+'px';\n"
-            else:
-                js += f"rect.style.right = value+'px';\n"
-            js += '}\n'
+            size_vars = list(self._get_size_vars_in_expression(rect.position[0]))
+            if size_vars:
+                js += '{\n'
+                js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
+                for varname, rect_id in size_vars:
+                    rect_name = self.rectangles[rect_id][1]
+                    js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
+                    js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
+                js_expression = self._render_expression_js(rect.position[0])
+                js += f"const value = {js_expression};\n"
+                if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
+                    js += f"rect.style.left = value+'px';\n"
+                else:
+                    js += f"rect.style.right = value+'px';\n"
+                js += '}\n'
 
         if isinstance(rect.position[1], Expression):
-            js = '{\n'
-            # @todo: Generate a function for setting this element's x position.
-            # @todo: I think we somehow need to add the rect_id in the
-            # expression, otherwise we don't know whose variable it is.
-            js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
-            for varname, rect_id in self._get_size_vars_in_expression(rect.position[1]):
-                rect_name = self.rectangles[rect_id][1]
-                js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
-                js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
-            js_expression = self._render_expression_js(rect.position[1])
-            js += f"const value = {js_expression};\n"
-            if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
-                js += f"rect.style.top = value+'px';\n"
-            else:
-                js += f"rect.style.bottom = value+'px';\n"
-            js += '}\n'
+            size_vars = list(self._get_size_vars_in_expression(rect.position[1]))
+            if size_vars:
+                # @todo: First check if there are any vars in expression?
+                js += '{\n'
+                js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
+                for varname, rect_id in size_vars:
+                    rect_name = self.rectangles[rect_id][1]
+                    js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
+                    js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
+                js_expression = self._render_expression_js(rect.position[1])
+                js += f"const value = {js_expression};\n"
+                if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
+                    js += f"rect.style.top = value+'px';\n"
+                else:
+                    js += f"rect.style.bottom = value+'px';\n"
+                js += '}\n'
+
+        if isinstance(rect.size[0], Expression):
+            size_vars = list(self._get_size_vars_in_expression(rect.size[0]))
+            if size_vars:
+                js += '{\n'
+                js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
+                for varname, rect_id in size_vars:
+                    rect_name = self.rectangles[rect_id][1]
+                    js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
+                    js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
+                js_expression = self._render_expression_js(rect.size[0])
+                js += f"const value = {js_expression};\n"
+                js += f"rect.style.width = value+'px';\n"
+                js += '}\n'
+
+        if isinstance(rect.size[1], Expression):
+            size_vars = list(self._get_size_vars_in_expression(rect.size[1]))
+            if size_vars:
+                js += '{\n'
+                js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
+                for varname, rect_id in size_vars:
+                    rect_name = self.rectangles[rect_id][1]
+                    js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
+                    js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
+                js_expression = self._render_expression_js(rect.size[1])
+                js += f"const value = {js_expression};\n"
+                js += f"rect.style.height = value+'px';\n"
+                js += '}\n'
 
         return js
 
@@ -341,9 +375,10 @@ class Rectangle(object):
             Expression(f'height {rect_id}')
         ]
 
-        self.pivot    = Pivot.TOP_LEFT
-        self.text     = None
-        self.style    = {}
+        self.pivot          = Pivot.TOP_LEFT
+        self.text           = None
+        self.text_alignment = 'left'
+        self.style          = {}
 
     def set_size(self, size: Coord2d):
         self.size = size
@@ -355,7 +390,11 @@ class Rectangle(object):
         self.size[1] = height
 
     def get_size(self):
-        return self.size
+        rect_id = id(self)
+        return [
+            Expression(f'width {rect_id}'),
+            Expression(f'height {rect_id}')
+        ]
 
     def set_position(self, position: Coord2d, pivot: Pivot = Pivot.TOP_LEFT):
         self.position = position
@@ -363,6 +402,9 @@ class Rectangle(object):
 
     def set_text(self, text):
         self.text = text
+
+    def set_text_alignment(self, alignment: str):
+        self.text_alignment = alignment
 
     def set_fill_color(self, *color):
         css_color = _get_css_color(color)
