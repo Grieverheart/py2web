@@ -166,6 +166,7 @@ class Application(object):
         rect = rect_node[0]
 
         if isinstance(rect.position[0], Expression):
+            # @todo: First check if there are any vars in expression?
             js = '{\n'
             # @todo: Generate a function for setting this element's x position.
             # @todo: I think we somehow need to add the rect_id in the
@@ -275,6 +276,7 @@ class Rectangle(object):
             Expression(f'width {rect_id}'),
             Expression(f'height {rect_id}')
         ]
+
         self.pivot    = Pivot.TOP_LEFT
         self.text     = None
         self.style    = {}

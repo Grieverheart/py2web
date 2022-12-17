@@ -5,32 +5,20 @@ from py2web import Application, Pivot, ViewportWidth, ViewportHeight
 #     For this we need to be able to create images, and text. Will images
 #     be separate from rectangles?
 
-# @note: The problem with sizing objects based on text size is tough due to how
-# HTML works. First problem is that we cannot know the text size when running
-# the script. We can perhaps try to calculate the text dimensions based on the
-# font family by e.g. rendering it on the fly using python, but we still have
-# the issue that you are not certain that specific fonts are going to be used
-# unless provided. One possibility is to kinda force the user to either use a
-# standard font or provide his own as a font file. Alternatively, we ignore
-# this issue alltogether and use fixed sizes for the text containing elements.
-# Finally, we can just let HTML/CSS size the elements accordingly, but in my
-# opinion, we are then just mirroring the mess of HTML/CSS. Perhaps we could
-# even produce js somehow, that does the sizing. For example, if I want to
-# position an element relative to its text-sized (direct) relative, we could
-# make the size of the relative a placeholder. Then when rendering the html/css
-# we add a step for rendering js and set the placehold at initialization of the
-# website.
-
 # @idea: To create visual scope instead of doing the equivalent Begin/End of
 # dear imgui, we can use 'with .. as ..' syntax!
 # @note: We also probably want to keep a "cursor" like dear imgui so that we don't
 # have to explicitly set the position everytime?
 
 # TODO:
-# * Text positioning.
+# * Absolute sizing/positioning. -- We need units.
+# * Text positioning/centering etc.
 # * Automatic sizing to text? I guess we would also need margin/padding here?
 # * Clickable buttons.
 # * Images.
+
+# @note: New approach: Make positioning/sizing in px by default. No need for
+# font units as everything already scales when zooming.
 
 if __name__ == '__main__':
 
@@ -65,7 +53,7 @@ if __name__ == '__main__':
 
     # @todo: Make this work!
     # left = menu_about.get_size()[0] + 10
-    # @todo: What units do we use here? We wanted to ues relative units
+    # @todo: What units do we use here? We wanted to use relative units
     # everywhere, but here it might be difficult?
     left = menu_about.get_size()[0]
     menu_blog = app.create_rectangle(header_menu, 'menu_blog')
