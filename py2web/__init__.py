@@ -116,44 +116,108 @@ class Application(object):
 
         if isinstance(rect.position[0], Number):
             if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
-                css += 'left: %f%%;\n' % (100 * rect.position[0])
+                css += f'left: {rect.position[0]}px;\n'
             else:
-                css += 'right: %f%%;\n' % (100 * rect.position[0])
+                css += f'right: {rect.position[0]}px;\n'
 
         if isinstance(rect.position[1], Number):
             if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
-                css += 'top: %f%%;\n' % (100 * rect.position[1])
+                css += f'top: {rect.position[1]}px;\n'
             else:
-                css += 'bottom: %f%%;\n' % (100 * rect.position[1])
+                css += f'bottom: {rect.position[1]}px;\n'
 
         if isinstance(rect.size[0], Number):
-            css += 'width: %f%%;\n' % (100 * rect.size[0])
+            css += f'width: {rect.size[0]}px;\n'
+        elif isinstance(rect.size[0], Expression):
+            vars = list(self._get_size_vars_in_expression(rect.size[0]))
+            if not vars:
+                css_expression = self._render_expression_css(rect.size[0])
+                if rect.size[0].children:
+                    css += f'width: calc({css_expression[1:-1]});\n'
+                else:
+                    css += f'width: {css_expression};\n'
+
         if isinstance(rect.size[1], Number):
-            css += 'height: %f%%;\n' % (100 * rect.size[1])
+            css += f'height: {rect.size[1]}px;\n'
+        elif isinstance(rect.size[1], Expression):
+            vars = list(self._get_size_vars_in_expression(rect.size[1]))
+            if not vars:
+                css_expression = self._render_expression_css(rect.size[1])
+                if rect.size[1].children:
+                    css += f'height: calc({css_expression[1:-1]});\n'
+                else:
+                    css += f'height: {css_expression};\n'
 
         for k, v in rect.style.items():
-            css += '%s: %s;' % (k, v)
+            css += '%s: %s;\n' % (k, v)
 
         css += '}\n'
         return css
 
+    def _render_expression_css(self, expression: Expression, expression_css: str = ''):
+        if expression.children:
+            op = op_str_dict[expression.op_or_varname]
+
+            left = expression.children[0]
+            if isinstance(left, Number):
+                if op == '+' or op == '-':
+                    left = f'{left}px'
+                else:
+                    left = f'{left}'
+            else:
+                left = self._render_expression_css(left, expression_css)
+
+            right = expression.children[1]
+            if isinstance(right, Number):
+                if op == '+' or op == '-':
+                    right = f'{right}px'
+                else:
+                    right = f'{right}'
+            else:
+                right  = self._render_expression_css(right, expression_css)
+
+            # @todo: Integer division needs separate handling!
+            return f'({left} {op} {right})'
+        else:
+            varname = expression.op_or_varname
+            if varname in ['vw', 'vh', 'vmin', 'vmax','%']:
+                return f'100{varname}'
+            else:
+                # @todo: What?
+                assert(False)
+                return f'{varname}'
+
     # @todo: Only yield vars not already yielded!
-    def _get_vars_in_expression(self, expression: Expression):
+    #@lru_cache
+    def _get_size_vars_in_expression(self, expression: Expression):
         if expression.children:
             for e in expression.children:
-                yield from self._get_vars_in_expression(e)
-        else:
-            # @todo: Assume var are width and height...need to handle others too.
-            var, rect_id = tuple(expression.op_or_varname.split(' '))
-            yield var, int(rect_id)
+                if isinstance(e, Expression):
+                    yield from self._get_size_vars_in_expression(e)
+        elif isinstance(expression, Expression):
+            val = tuple(expression.op_or_varname.split(' '))
+            is_size_var = len(val) == 2 and (val[0] == 'width' or val[0] == 'height')
+            if is_size_var:
+                yield val[0], int(val[1])
 
     def _render_expression_js(self, expression: Expression, expression_js: str = ''):
         if expression.children:
-            left  = self._render_expression_js(expression.children[0], expression_js)
-            right = self._render_expression_js(expression.children[1], expression_js)
             op    = op_str_dict[expression.op_or_varname]
+
+            left = expression.children[0]
+            if isinstance(left, Number):
+                left = f'{left}'
+            else:
+                left = self._render_expression_js(left, expression_js)
+
+            right = expression.children[1]
+            if isinstance(right, Number):
+                right = f'{right}'
+            else:
+                right  = self._render_expression_js(right, expression_js)
+
             # @todo: Integer division needs separate handling!
-            return f'({left}){op}({right})'
+            return f'({left} {op} {right})'
         else:
             varname = expression.op_or_varname
             varname, rect_id = varname.split(' ')
@@ -172,7 +236,7 @@ class Application(object):
             # @todo: I think we somehow need to add the rect_id in the
             # expression, otherwise we don't know whose variable it is.
             js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
-            for varname, rect_id in self._get_vars_in_expression(rect.position[0]):
+            for varname, rect_id in self._get_size_vars_in_expression(rect.position[0]):
                 rect_name = self.rectangles[rect_id][1]
                 js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
                 js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
@@ -190,7 +254,7 @@ class Application(object):
             # @todo: I think we somehow need to add the rect_id in the
             # expression, otherwise we don't know whose variable it is.
             js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
-            for varname, rect_id in self._get_vars_in_expression(rect.position[1]):
+            for varname, rect_id in self._get_size_vars_in_expression(rect.position[1]):
                 rect_name = self.rectangles[rect_id][1]
                 js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
                 js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
@@ -312,8 +376,9 @@ class Rectangle(object):
         self.style['font-family'] = font_name
 
     def set_font_size(self, font_size):
-        self.style['font-size'] = font_size
+        self.style['font-size'] = f'{font_size}px'
 
+ParentExtent   = Expression('%')
 ViewportWidth  = Expression('vw')
 ViewportHeight = Expression('vh')
 ViewportMin    = Expression('vmin')
