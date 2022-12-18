@@ -5,13 +5,10 @@ from py2web import Application, Pivot, ViewportWidth, ViewportHeight, ParentExte
 #     For this we need to be able to create images, and text. Will images
 #     be separate from rectangles?
 
-# @idea: To create visual scope instead of doing the equivalent Begin/End of
-# dear imgui, we can use 'with .. as ..' syntax!
-# @note: We also probably want to keep a "cursor" like dear imgui so that we don't
-# have to explicitly set the position everytime?
+# @todo: Think about if we want to keep a "cursor" like dear imgui. Then we can
+# set the layout for some automatic positioning.
 
 # TODO:
-# * Try making the interface nicer by using a scope.
 # * Clickable buttons.
 # * Images.
 
@@ -22,49 +19,50 @@ if __name__ == '__main__':
 
     header_height = 60
 
-    header = app.create_rectangle(name='header')
-    header.set_size([ViewportWidth, header_height])
-    header.set_fill_color(39, 40, 34)
-    header.set_font('Roboto')
-    header.set_font_size(17)
+    with app.rectangle('header') as header:
+        header.set_size([ViewportWidth, header_height])
+        header.set_fill_color(39, 40, 34)
+        header.set_font('Roboto')
+        header.set_font_size(17)
 
-    header_home_button = app.create_rectangle(header, 'home_button')
-    header_home_button.set_text('NICK TASIOS')
-    header_home_button.set_text_color(248, 248, 242)
-    header_home_button.set_font_size(34)
-    vertical_center = 0.5 * header.get_size()[1] - 0.5 * header_home_button.get_size()[1]
-    header_home_button.set_position([10, vertical_center])
+        with app.rectangle('home_button') as home_button:
+            home_button.set_text('NICK TASIOS')
+            home_button.set_text_color(248, 248, 242)
+            home_button.set_font_size(34)
+            vertical_center = 0.5 * header.get_size()[1] - 0.5 * home_button.get_size()[1]
+            home_button.set_position([10, vertical_center])
+            home_button_width = home_button.get_size()[0]
 
-    header_menu_width = header.get_size()[0] - header_home_button.get_size()[0] - 10
-    header_menu = app.create_rectangle(header, 'menu')
-    header_menu.set_position([0, 0], pivot=Pivot.TOP_RIGHT)
-    header_menu.set_size([header_menu_width, ParentExtent])
+        with app.rectangle('menu') as menu:
+            header_menu_width = header.get_size()[0] - home_button_width - 10
+            menu.set_position([0, 0], pivot=Pivot.TOP_RIGHT)
+            menu.set_size([header_menu_width, ParentExtent])
 
-    left = 30
-    menu_about = app.create_rectangle(header_menu, 'menu_about')
-    menu_about.set_text('About')
-    menu_about.set_text_color(248, 248, 242)
-    vertical_center = 0.5 * header.get_size()[1] - 0.5 * menu_about.get_size()[1]
-    menu_about.set_position([left, vertical_center], pivot=Pivot.TOP_RIGHT)
+        left = 30
+        with app.rectangle('menu_about') as menu_about:
+            menu_about.set_text('About')
+            menu_about.set_text_color(248, 248, 242)
+            vertical_center = 0.5 * header.get_size()[1] - 0.5 * menu_about.get_size()[1]
+            menu_about.set_position([left, vertical_center], pivot=Pivot.TOP_RIGHT)
 
-    left += menu_about.get_size()[0] + 30
-    menu_blog = app.create_rectangle(header_menu, 'menu_blog')
-    menu_blog.set_text('Blog')
-    menu_blog.set_text_color(248, 248, 242)
-    vertical_center = 0.5 * header.get_size()[1] - 0.5 * menu_blog.get_size()[1]
-    menu_blog.set_position([left, vertical_center], pivot=Pivot.TOP_RIGHT)
+        left += menu_about.get_size()[0] + 30
+        with app.rectangle('menu_blog') as menu_blog:
+            menu_blog.set_text('Blog')
+            menu_blog.set_text_color(248, 248, 242)
+            vertical_center = 0.5 * header.get_size()[1] - 0.5 * menu_blog.get_size()[1]
+            menu_blog.set_position([left, vertical_center], pivot=Pivot.TOP_RIGHT)
 
-    left += menu_blog.get_size()[0] + 30
-    menu_projects = app.create_rectangle(header_menu, 'menu_projects')
-    menu_projects.set_text('Projects')
-    menu_projects.set_text_color(248, 248, 242)
-    vertical_center = 0.5 * header.get_size()[1] - 0.5 * menu_projects.get_size()[1]
-    menu_projects.set_position([left, vertical_center], pivot=Pivot.TOP_RIGHT)
+        left += menu_blog.get_size()[0] + 30
+        with app.rectangle('menu_projects') as menu_projects:
+            menu_projects.set_text('Projects')
+            menu_projects.set_text_color(248, 248, 242)
+            vertical_center = 0.5 * header.get_size()[1] - 0.5 * menu_projects.get_size()[1]
+            menu_projects.set_position([left, vertical_center], pivot=Pivot.TOP_RIGHT)
 
-    main_content = app.create_rectangle(name='main_content')
-    main_content.set_position([0, header_height])
-    main_content.set_size([ParentExtent, ParentExtent - header_height])
-    main_content.set_fill_color(64, 64, 64)
+    with app.rectangle('main_content') as main_content:
+        main_content.set_position([0, header_height])
+        main_content.set_size([ParentExtent, ParentExtent - header_height])
+        main_content.set_fill_color(64, 64, 64)
 
     html, css, js = app.render()
 

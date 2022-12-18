@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Union, Tuple
 from numbers import Number
+from contextlib import contextmanager
 
 class Pivot(Enum):
     CENTER       = 0
@@ -67,25 +68,36 @@ class Application(object):
         self.rectangles[self.root_id] = []
         self.metadata = None
         self.rect_settings = {}
+        self.parent_stack = [self.root_id]
 
     def set_metadata(self, metadata):
         self.metadata = metadata
 
-    def create_rectangle(self, rect_parent=None, name=None):
+
+    def _create_rectangle(self, rect_id_parent, name=None):
         rect = Rectangle()
         rect_id = id(rect)
-        if rect_parent:
-            # @todo: Do a check that the id already exists. It should.
-            rect_id_parent = id(rect_parent)
-        else:
-            rect_id_parent = self.root_id
-
         name = name if name else 'rect_%d' % rect_id
         self.rectangles[rect_id] = [rect, name, rect_id_parent]
         self.rect_settings[rect_id] = {}
         self.rectangles[rect_id_parent].append(rect_id)
-
         return rect
+
+    def push_rectangle(self, name=None):
+        current_id_parent = self.parent_stack[-1]
+        rect = self._create_rectangle(rect_id_parent=current_id_parent, name=name)
+        self.parent_stack.append(id(rect))
+        return rect
+
+    def pop_rectangle(self):
+        self.parent_stack.pop()
+
+    @contextmanager
+    def rectangle(self, name=None):
+        try:
+            yield self.push_rectangle(name)
+        finally:
+            self.pop_rectangle()
 
     # @todo: Perhaps alternative to centering manually.
     # We can implement this using css transform: translate, but for text it's
