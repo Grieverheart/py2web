@@ -130,7 +130,7 @@ class Application(object):
         rect = rect_node[0]
         css += f'#{rect_node[1]} {{\n'
         #css += 'display: block;\n'
-        css += 'overflow: hidden;\n'
+        #css += 'overflow: hidden;\n'
         css += 'position: absolute;\n'
 
         if isinstance(rect.position[0], Number):
@@ -138,12 +138,40 @@ class Application(object):
                 css += f'left: {rect.position[0]}px;\n'
             else:
                 css += f'right: {rect.position[0]}px;\n'
+        elif isinstance(rect.position[0], Expression):
+            vars = list(self._get_size_vars_in_expression(rect.position[0]))
+            if not vars:
+                css_expression = self._render_expression_css(rect.position[0])
+
+                if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
+                    side = 'left'
+                else:
+                    side = 'right'
+
+                if rect.position[0].children:
+                    css += f'{side}: calc({css_expression[1:-1]});\n'
+                else:
+                    css += f'{side}: {css_expression};\n'
 
         if isinstance(rect.position[1], Number):
             if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
                 css += f'top: {rect.position[1]}px;\n'
             else:
                 css += f'bottom: {rect.position[1]}px;\n'
+        elif isinstance(rect.position[1], Expression):
+            vars = list(self._get_size_vars_in_expression(rect.position[1]))
+            if not vars:
+                css_expression = self._render_expression_css(rect.position[1])
+
+                if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
+                    side = 'top'
+                else:
+                    side = 'bottom'
+
+                if rect.position[1].children:
+                    css += f'{side}: calc({css_expression[1:-1]});\n'
+                else:
+                    css += f'{side}: {css_expression};\n'
 
         if isinstance(rect.size[0], Number):
             css += f'width: {rect.size[0]}px;\n'
@@ -330,6 +358,13 @@ class Application(object):
         html += '</html>\n'
 
         css = ''
+        css += '''
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+'''
+
         for rn in self.rectangles:
             if rn == self.root_id:
                 continue
