@@ -109,29 +109,29 @@ class Application(object):
     def _render_rect_html(self, rect_id):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
-        html = '<div id="%s">' % rect_node[1]
+        if rect.link:
+            element_type = 'a'
+            html = f'<a id="{rect_node[1]}" href="{rect.link}">\n'
+        else:
+            element_type = 'div'
+            html = f'<div id="{rect_node[1]}">\n'
+
         if rect.text is not None:
-            # @note: Adding another div here, might make it easier to align the
-            # text.
-            #html = '<div id="%s_text">' % rect_node[1]
             html += rect.text
-            #html += '</div>'
         for i in range(3, len(rect_node)):
             html += self._render_rect_html(rect_node[i])
-        html += '</div>'
+
+        html += f'</{element_type}>\n'
         return html
 
     def _render_rect_css(self, rect_id):
         css = '\n'
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
-        css += '#%s {\n' % rect_node[1]
+        css += f'#{rect_node[1]} {{\n'
         #css += 'display: block;\n'
         css += 'overflow: hidden;\n'
         css += 'position: absolute;\n'
-
-        if rect.text is not None:
-            css += f'text-align: {rect.text_alignment};\n'
 
         if isinstance(rect.position[0], Number):
             if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
@@ -315,19 +315,19 @@ class Application(object):
         return js
 
     def render(self):
-        html = '<!DOCTYPE html><html>'
-        html += '<head>'
-        html += '<title>py2web-generated document</title>'
-        html += '<link rel="stylesheet" href="style.css">'
-        html += '<script src="code.js"></script>'
+        html = '<!DOCTYPE html><html>\n'
+        html += '<head>\n'
+        html += '<title>py2web-generated document</title>\n'
+        html += '<link rel="stylesheet" href="style.css">\n'
+        html += '<script src="code.js"></script>\n'
         html += self.metadata
-        html += '</head>'
-        html += '<body>'
+        html += '</head>\n'
+        html += '<body>\n'
         root = self.rectangles[self.root_id]
         for i in range(len(root)):
             html += self._render_rect_html(root[i])
-        html += '</body>'
-        html += '</html>'
+        html += '</body>\n'
+        html += '</html>\n'
 
         css = ''
         for rn in self.rectangles:
@@ -389,7 +389,7 @@ class Rectangle(object):
 
         self.pivot          = Pivot.TOP_LEFT
         self.text           = None
-        self.text_alignment = 'left'
+        self.link           = None
         self.style          = {}
 
     def set_size(self, size: Coord2d):
@@ -412,11 +412,14 @@ class Rectangle(object):
         self.position = position
         self.pivot    = pivot
 
+    def set_link(self, link: str):
+        self.link = link
+
     def set_text(self, text):
         self.text = text
 
     def set_text_alignment(self, alignment: str):
-        self.text_alignment = alignment
+        self.style['text-alignment'] = alignment
 
     def set_fill_color(self, *color):
         css_color = _get_css_color(color)
