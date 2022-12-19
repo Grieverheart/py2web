@@ -1,17 +1,8 @@
 from py2web import Pivot, ViewportWidth, ViewportHeight, ParentExtent
 import py2web as pw
 
-# Goal 2: Recreate nicktasios.nl/projects/:
-#
-#     For this we need to be able to create images, and text. Will images
-#     be separate from rectangles?
-
 # @todo: Think about if we want to keep a "cursor" like dear imgui. Then we can
 # set the layout for some automatic positioning.
-
-# TODO:
-# * Images.
-# * Clickable buttons.
 
 if __name__ == '__main__':
 
@@ -28,6 +19,15 @@ if __name__ == '__main__':
         '<h2><a href="https://github.com/Grieverheart/SimpleEDMD" target="_blank">SimpleEDMD</a></h2><p>SimpleEDMD is a state-of-the-art three-dimensional Event-Driven Molecular Dynamics simulator for hard convex particles. In EDMD, the most resource intensive operation, is identifying the next collision event. In SimpleEDMD, we use the Gilbert Johnson Keerthi (GJK) algorithm in combination with Conservative advancement, to efficiently predict the collision time between arbitrarily shaped convex particles. The simulator can handle simulations of particles in the order of 10<sup>6</sup> in a reasonable amount of time.</p>',
         '<h2><a href="https://bitbucket.org/Grieverheart/ions3d" target="_blank">ions3D</a></h2><p>ions3D implements the lattice Monte Carlo model described in <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.119.218001">Microphase separation in oil-water mixtures containing hydrophilic and hydrophobic ions</a> to simulate ions in a binary solvent mixture. In this model, the solvent mixture and electrostatics are treated explicitly, by combining the simplicity of a lattice gas model and the efficiency of the auxiliary field method for treating the electrostatics.</p>',
         '<h2><a href="https://bitbucket.org/Grieverheart/ini_parser" target="_blank">INIP</a></h2><p>INIP is a simple ini-like file parser written in C. It is useful for, but not limited to, setting up variables for scientific simulations.</p>'
+    ]
+
+    project_images = [
+        'files/vectron_start_screen.png',
+        'files/plastic_crystal1.png',
+        'files/anim.gif',
+        'files/nnl.png',
+        'files/ions3d.png',
+        'files/inip.png'
     ]
 
     with app.rectangle('header') as header:
@@ -98,8 +98,8 @@ if __name__ == '__main__':
                 project.set_position([0.5 * ViewportWidth - 0.5 * 748, top])
 
                 with app.rectangle('project%d_image' % i, class_name='project_image') as project_image:
-                    project_image.set_size([image_size, image_size])
-                    project_image.set_fill_color(92, 92, 92)
+                    project_image.set_image(project_images[i])
+                    project_image.set_width(image_size)
 
                 with app.rectangle('project%d_text' % i, class_name='project_text') as project_text:
                     project_text.set_width(748-image_size-30)

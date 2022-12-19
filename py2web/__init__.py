@@ -118,17 +118,22 @@ class Application(object):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
 
-        if rect.link:
-            closing_element = '</a>\n'
-            html = f'<a href="{rect.link}" '
-        else:
-            closing_element = '</div>\n'
-            html = f'<div '
-
-        html += f'id="{rect_node[1]}" '
+        tags = f'id="{rect_node[1]}" '
         if rect_node[2]:
-            html += f'class="{rect_node[2]}" '
-        html += '>\n'
+            tags += f'class="{rect_node[2]}" '
+
+        if rect.link and rect.image:
+            html = f'<a href="{rect.link}"><img src="{rect.image}" {tags}>'
+            closing_element = '</img></a>\n'
+        elif rect.image:
+            html = f'<img src="{rect.image}" {tags}>'
+            closing_element = '</img>\n'
+        elif rect.link:
+            html = f'<a href="{rect.link}" {tags}>'
+            closing_element = '</a>\n'
+        else:
+            html = f'<div {tags}>'
+            closing_element = '</div>\n'
 
         if rect.text is not None:
             html += rect.text
@@ -449,6 +454,7 @@ class Rectangle(object):
         self.pivot          = Pivot.TOP_LEFT
         self.text           = None
         self.link           = None
+        self.image          = None
         self.style          = {}
 
     def set_size(self, size: Coord2d):
@@ -473,6 +479,9 @@ class Rectangle(object):
 
     def set_link(self, link: str):
         self.link = link
+
+    def set_image(self, image: str):
+        self.image = image
 
     def set_text(self, text):
         self.text = text
