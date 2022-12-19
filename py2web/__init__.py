@@ -254,7 +254,7 @@ class Application(object):
             if varname in ['vw', 'vh', 'vmin', 'vmax','%']:
                 return f'100{varname}'
             else:
-                # @todo: What?
+                # @todo
                 assert(False)
                 return f'{varname}'
 
@@ -399,6 +399,9 @@ html, body {
                 continue
             css += self._render_rect_css(rn)
 
+        # @todo: Generate a single block for all resizing so that we can reuse
+        # quried variables. This requires keeping a cache of all the variables
+        # that have been rendered already.
         js = 'window.onload = () => {\n'
         for rn in self.rectangles:
             if rn == self.root_id:
@@ -444,7 +447,6 @@ Coord2d = [Expression.Type, Expression.Type]
 class Rectangle(object):
     def __init__(self):
         rect_id = id(self)
-        # @todo: Perhaps set to None and add warnings when something is not set.
         self.position = [0,0]
         self.size     = [
             Expression(f'width {rect_id}'),

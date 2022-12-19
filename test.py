@@ -1,6 +1,9 @@
 from py2web import Pivot, ViewportWidth, ViewportHeight, ParentExtent
 import py2web as pw
 
+# TODO:
+#     * Implement other things like forms?
+
 # @todo: Think about if we want to keep a "cursor" like dear imgui. Then we can
 # set the layout for some automatic positioning.
 
@@ -37,7 +40,7 @@ if __name__ == '__main__':
         header.set_font_size(17)
 
         with app.rectangle('home_button') as home_button:
-            home_button.set_link('.')
+            home_button.set_link('index.html')
             home_button.set_text('NICK TASIOS')
             home_button.set_text_color(248, 248, 242)
             home_button.set_font_size(34)
