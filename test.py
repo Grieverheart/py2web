@@ -9,8 +9,8 @@ from py2web import Application, Pivot, ViewportWidth, ViewportHeight, ParentExte
 # set the layout for some automatic positioning.
 
 # TODO:
-# * Clickable buttons.
 # * Images.
+# * Clickable buttons.
 
 if __name__ == '__main__':
 
@@ -20,13 +20,14 @@ if __name__ == '__main__':
     header_height = 60
 
     # @todo: Perhaps use markdown to generate the project descriptions.
-    project_descriptions = []
-    project_descriptions.append('<h2><a href="https://studiostok.itch.io/vectron" target="_blank">Vectron</a></h2><p>Vectron is rythmic electronic synesthesia experience. Everything in Vectron is made with sound. The graphics in this game are a representation of the sound, visualized by a simulated XY Oscilloscope. If you are interested to learn more have a look <a href="../posts/simulating-an-xy-oscilloscope-on-the-gpu.html">here</a>.</p>')
-    project_descriptions.append('<h2><a href="https://github.com/Grieverheart/partViewer3D-GLSL" target="_blank">partviewer3D-GLSL</a></h2><p>PartViewer3D is a simple 3D scene viewer written using modern OpenGL deferred shading techniques. The main usage case of PartViewer3D is for viewing hard particle configurations. As different people have different needs, the viewer can be programmed using Lua scripts through the exposed API.</p>')
-    project_descriptions.append('<h2><a href="https://github.com/Grieverheart/ntcd" target="_blank">NTCD</a></h2><p>NTCD is a C/C++ single file collision detection, closest point, and raycasting library for abitrary convex shapes. The library uses the Gilbert Johnson Keerthi (GJK) algorithm for doing the heavy lifting, which allows for great flexibility and high performance.</p>')
-    project_descriptions.append('<h2><a href="https://github.com/Grieverheart/SimpleEDMD" target="_blank">SimpleEDMD</a></h2><p>SimpleEDMD is a state-of-the-art three-dimensional Event-Driven Molecular Dynamics simulator for hard convex particles. In EDMD, the most resource intensive operation, is identifying the next collision event. In SimpleEDMD, we use the Gilbert Johnson Keerthi (GJK) algorithm in combination with Conservative advancement, to efficiently predict the collision time between arbitrarily shaped convex particles. The simulator can handle simulations of particles in the order of 10<sup>6</sup> in a reasonable amount of time.</p>')
-    project_descriptions.append('<h2><a href="https://bitbucket.org/Grieverheart/ions3d" target="_blank">ions3D</a></h2><p>ions3D implements the lattice Monte Carlo model described in <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.119.218001">Microphase separation in oil-water mixtures containing hydrophilic and hydrophobic ions</a> to simulate ions in a binary solvent mixture. In this model, the solvent mixture and electrostatics are treated explicitly, by combining the simplicity of a lattice gas model and the efficiency of the auxiliary field method for treating the electrostatics.</p>')
-    project_descriptions.append('<h2><a href="https://bitbucket.org/Grieverheart/ini_parser" target="_blank">INIP</a></h2><p>INIP is a simple ini-like file parser written in C. It is useful for, but not limited to, setting up variables for scientific simulations.</p>')
+    project_descriptions = [
+        '<h2><a href="https://studiostok.itch.io/vectron" target="_blank">Vectron</a></h2><p>Vectron is rythmic electronic synesthesia experience. Everything in Vectron is made with sound. The graphics in this game are a representation of the sound, visualized by a simulated XY Oscilloscope. If you are interested to learn more have a look <a href="../posts/simulating-an-xy-oscilloscope-on-the-gpu.html">here</a>.</p>',
+        '<h2><a href="https://github.com/Grieverheart/partViewer3D-GLSL" target="_blank">partviewer3D-GLSL</a></h2><p>PartViewer3D is a simple 3D scene viewer written using modern OpenGL deferred shading techniques. The main usage case of PartViewer3D is for viewing hard particle configurations. As different people have different needs, the viewer can be programmed using Lua scripts through the exposed API.</p>',
+        '<h2><a href="https://github.com/Grieverheart/ntcd" target="_blank">NTCD</a></h2><p>NTCD is a C/C++ single file collision detection, closest point, and raycasting library for abitrary convex shapes. The library uses the Gilbert Johnson Keerthi (GJK) algorithm for doing the heavy lifting, which allows for great flexibility and high performance.</p>',
+        '<h2><a href="https://github.com/Grieverheart/SimpleEDMD" target="_blank">SimpleEDMD</a></h2><p>SimpleEDMD is a state-of-the-art three-dimensional Event-Driven Molecular Dynamics simulator for hard convex particles. In EDMD, the most resource intensive operation, is identifying the next collision event. In SimpleEDMD, we use the Gilbert Johnson Keerthi (GJK) algorithm in combination with Conservative advancement, to efficiently predict the collision time between arbitrarily shaped convex particles. The simulator can handle simulations of particles in the order of 10<sup>6</sup> in a reasonable amount of time.</p>',
+        '<h2><a href="https://bitbucket.org/Grieverheart/ions3d" target="_blank">ions3D</a></h2><p>ions3D implements the lattice Monte Carlo model described in <a href="https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.119.218001">Microphase separation in oil-water mixtures containing hydrophilic and hydrophobic ions</a> to simulate ions in a binary solvent mixture. In this model, the solvent mixture and electrostatics are treated explicitly, by combining the simplicity of a lattice gas model and the efficiency of the auxiliary field method for treating the electrostatics.</p>',
+        '<h2><a href="https://bitbucket.org/Grieverheart/ini_parser" target="_blank">INIP</a></h2><p>INIP is a simple ini-like file parser written in C. It is useful for, but not limited to, setting up variables for scientific simulations.</p>'
+    ]
 
     with app.rectangle('header') as header:
         header.set_size([ViewportWidth, header_height])
