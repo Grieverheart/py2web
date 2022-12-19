@@ -1,4 +1,5 @@
-from py2web import Application, Pivot, ViewportWidth, ViewportHeight, ParentExtent
+from py2web import Pivot, ViewportWidth, ViewportHeight, ParentExtent
+import py2web as pw
 
 # Goal 2: Recreate nicktasios.nl/projects/:
 #
@@ -14,7 +15,7 @@ from py2web import Application, Pivot, ViewportWidth, ViewportHeight, ParentExte
 
 if __name__ == '__main__':
 
-    app = Application()
+    app = pw.Application()
     app.set_metadata('<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">')
 
     header_height = 60
@@ -83,30 +84,37 @@ if __name__ == '__main__':
 
     with app.rectangle('main_content') as main_content:
         num_projects     = len(project_descriptions)
-        project_height   = 200
+        image_size       = 200
         project_distance = 50
 
         main_content.set_position([0, header_height])
-        main_content.set_size([ParentExtent, num_projects*(project_height+project_distance)+project_distance])
         main_content.set_fill_color(64, 64, 64)
+        main_content.set_font('Roboto')
+        main_content.set_font_size(17)
 
-        top = project_distance
+        top = project_distance // 2
         for i in range(num_projects):
             with app.rectangle('project%d' % i) as project:
-                project.set_size([748, project_height])
                 project.set_position([0.5 * ViewportWidth - 0.5 * 748, top])
-                project.set_fill_color(200, 200, 200)
+                #project.set_fill_color(200, 200, 200)
 
                 with app.rectangle('project%d_image' % i) as project_image:
-                    project_image.set_size([project_height, project_height])
+                    project_image.set_size([image_size, image_size])
                     project_image.set_fill_color(92, 92, 92)
 
                 with app.rectangle('project%d_text' % i) as project_text:
-                    project_text.set_size([748-project_height-30, project_height])
-                    project_text.set_position([project_height+30,0], pivot=Pivot.TOP_LEFT)
+                    project_text.set_width(748-image_size-30)
+                    project_text.set_position([image_size+30,0], pivot=Pivot.TOP_LEFT)
                     project_text.set_text(project_descriptions[i])
+                    project_text.set_text_color(248, 248, 242)
+                    text_height = project_text.get_size()[1]
 
-            top += project_height + project_distance
+                project_height = pw.max(image_size, text_height)
+                project.set_size([748, project_height])
+
+                top += project_height + project_distance
+
+            main_content.set_size([ParentExtent, top])
 
     html, css, js = app.render()
     css += '''

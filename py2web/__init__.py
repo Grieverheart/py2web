@@ -47,6 +47,12 @@ class Expression(object):
     def __pow__(self, other: Type):
         return Expression('pow', (self, other))
 
+def min(a: Expression, b: Expression):
+    return Expression('min', (a, b))
+
+def max(a: Expression, b: Expression):
+    return Expression('max', (a, b))
+
 op_str_dict = {
     'add' : '+',
     'sub' : '-',
@@ -203,7 +209,12 @@ class Application(object):
 
     def _render_expression_css(self, expression: Expression, expression_css: str = ''):
         if expression.children:
-            op = op_str_dict[expression.op_or_varname]
+            if expression.op_or_varname in ['min', 'max']:
+                op = expression.op_or_varname
+                op_is_func = True
+            else:
+                op = op_str_dict[expression.op_or_varname]
+                op_is_func = False
 
             left = expression.children[0]
             if isinstance(left, Number):
@@ -224,7 +235,7 @@ class Application(object):
                 right  = self._render_expression_css(right, expression_css)
 
             # @todo: Integer division needs separate handling!
-            return f'({left} {op} {right})'
+            return f'({left} {op} {right})' if not op_is_func else f'{op}({left}, {right})'
         else:
             varname = expression.op_or_varname
             if varname in ['vw', 'vh', 'vmin', 'vmax','%']:
@@ -249,7 +260,12 @@ class Application(object):
 
     def _render_expression_js(self, expression: Expression, expression_js: str = ''):
         if expression.children:
-            op    = op_str_dict[expression.op_or_varname]
+            if expression.op_or_varname in ['min', 'max']:
+                op = 'Math.' + expression.op_or_varname
+                op_is_func = True
+            else:
+                op = op_str_dict[expression.op_or_varname]
+                op_is_func = False
 
             left = expression.children[0]
             if isinstance(left, Number):
@@ -264,7 +280,7 @@ class Application(object):
                 right  = self._render_expression_js(right, expression_js)
 
             # @todo: Integer division needs separate handling!
-            return f'({left} {op} {right})'
+            return f'({left} {op} {right})' if not op_is_func else f'{op}({left}, {right})'
         else:
             varname = expression.op_or_varname
             varname, rect_id = varname.split(' ')
