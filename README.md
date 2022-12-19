@@ -56,3 +56,5 @@ Due to having to use placeholders for various variables, the `Expression` class 
 ## Future
 
 Although py2web is currently in the proof of concept phase, if there enough is enough interest, I intend to expand its feature set. For example, [Dear ImGui](https://github.com/ocornut/imgui) makes it very easy to quickly build rich interfaces. This is partly facilitated by its automatic positioning and sizing of elements, something that is currently done manually in py2web. It would be nice to incorporate such features in the library, and also build a library of configurable elements.
+
+Do note that Dear ImGui is created with the intention of building GUIs, while py2web is created with the intention of building websites. For building GUIs using HTML, please check the experimental library at <https://github.com/greggman/ImHUI>.
