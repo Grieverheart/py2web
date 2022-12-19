@@ -80,18 +80,20 @@ class Application(object):
         self.metadata = metadata
 
 
-    def _create_rectangle(self, rect_id_parent, name=None):
+    # @todo: Give a warning if name is not unique and append the rect_id to
+    # make it unique.
+    def _create_rectangle(self, rect_id_parent, name=None, class_name=None):
         rect = Rectangle()
         rect_id = id(rect)
         name = name if name else 'rect_%d' % rect_id
-        self.rectangles[rect_id] = [rect, name, rect_id_parent]
+        self.rectangles[rect_id] = [rect, name, class_name, rect_id_parent]
         self.rect_settings[rect_id] = {}
         self.rectangles[rect_id_parent].append(rect_id)
         return rect
 
-    def push_rectangle(self, name=None):
+    def push_rectangle(self, name=None, class_name=None):
         current_id_parent = self.parent_stack[-1]
-        rect = self._create_rectangle(rect_id_parent=current_id_parent, name=name)
+        rect = self._create_rectangle(rect_id_parent=current_id_parent, name=name, class_name=class_name)
         self.parent_stack.append(id(rect))
         return rect
 
@@ -99,9 +101,9 @@ class Application(object):
         self.parent_stack.pop()
 
     @contextmanager
-    def rectangle(self, name=None):
+    def rectangle(self, name=None, class_name=None):
         try:
-            yield self.push_rectangle(name)
+            yield self.push_rectangle(name, class_name)
         finally:
             self.pop_rectangle()
 
@@ -115,19 +117,25 @@ class Application(object):
     def _render_rect_html(self, rect_id):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
+
         if rect.link:
-            element_type = 'a'
-            html = f'<a id="{rect_node[1]}" href="{rect.link}">\n'
+            closing_element = '</a>\n'
+            html = f'<a href="{rect.link}" '
         else:
-            element_type = 'div'
-            html = f'<div id="{rect_node[1]}">\n'
+            closing_element = '</div>\n'
+            html = f'<div '
+
+        html += f'id="{rect_node[1]}" '
+        if rect_node[2]:
+            html += f'class="{rect_node[2]}" '
+        html += '>\n'
 
         if rect.text is not None:
             html += rect.text
-        for i in range(3, len(rect_node)):
+        for i in range(4, len(rect_node)):
             html += self._render_rect_html(rect_node[i])
 
-        html += f'</{element_type}>\n'
+        html += closing_element
         return html
 
     def _render_rect_css(self, rect_id):

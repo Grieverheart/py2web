@@ -94,15 +94,14 @@ if __name__ == '__main__':
 
         top = project_distance // 2
         for i in range(num_projects):
-            with app.rectangle('project%d' % i) as project:
+            with app.rectangle('project%d' % i, class_name='project') as project:
                 project.set_position([0.5 * ViewportWidth - 0.5 * 748, top])
-                #project.set_fill_color(200, 200, 200)
 
-                with app.rectangle('project%d_image' % i) as project_image:
+                with app.rectangle('project%d_image' % i, class_name='project_image') as project_image:
                     project_image.set_size([image_size, image_size])
                     project_image.set_fill_color(92, 92, 92)
 
-                with app.rectangle('project%d_text' % i) as project_text:
+                with app.rectangle('project%d_text' % i, class_name='project_text') as project_text:
                     project_text.set_width(748-image_size-30)
                     project_text.set_position([image_size+30,0], pivot=Pivot.TOP_LEFT)
                     project_text.set_text(project_descriptions[i])
@@ -133,6 +132,9 @@ if __name__ == '__main__':
 }
 #menu a:hover {
     color: #47e3ff;
+}
+.project_text > h2 {
+    margin-top: 0;
 }
 '''
 
