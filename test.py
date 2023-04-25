@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
     # @todo: Perhaps use markdown to generate the project descriptions.
     project_descriptions = [
+        '<h2><a href="cas2wav" target="_blank">cas2wavJS</a></h2><p>A browser-based application for converting CAS files to WAV files for playback on digital devices. Using this app, you can load cas files onto an MSX computer. Source code can be found <a href="https://github.com/Grieverheart/cas2wavJS">here</a>.</p>',
         '<h2><a href="https://studiostok.itch.io/vectron" target="_blank">Vectron</a></h2><p>Vectron is rythmic electronic synesthesia experience. Everything in Vectron is made with sound. The graphics in this game are a representation of the sound, visualized by a simulated XY Oscilloscope. If you are interested to learn more have a look <a href="../posts/simulating-an-xy-oscilloscope-on-the-gpu.html">here</a>.</p>',
         '<h2><a href="https://github.com/Grieverheart/partViewer3D-GLSL" target="_blank">partviewer3D-GLSL</a></h2><p>PartViewer3D is a simple 3D scene viewer written using modern OpenGL deferred shading techniques. The main usage case of PartViewer3D is for viewing hard particle configurations. As different people have different needs, the viewer can be programmed using Lua scripts through the exposed API.</p>',
         '<h2><a href="https://github.com/Grieverheart/ntcd" target="_blank">NTCD</a></h2><p>NTCD is a C/C++ single file collision detection, closest point, and raycasting library for abitrary convex shapes. The library uses the Gilbert Johnson Keerthi (GJK) algorithm for doing the heavy lifting, which allows for great flexibility and high performance.</p>',
@@ -25,6 +26,7 @@ if __name__ == '__main__':
     ]
 
     project_images = [
+        'files/cas2wavjs.png',
         'files/vectron_start_screen.png',
         'files/plastic_crystal1.png',
         'files/anim.gif',

@@ -10,6 +10,11 @@ class Pivot(Enum):
     BOTTOM_RIGHT = 3
     BOTTOM_LEFT  = 4
 
+class Layout(Enum):
+    NONE    = 0
+    ROW     = 1
+    COLUMN  = 2
+
 class Expression(object):
 
     Type = Union[Number, 'Expression']
@@ -79,6 +84,17 @@ class Application(object):
     def set_metadata(self, metadata):
         self.metadata = metadata
 
+    def Spacer(self, size: Number = None):
+        with self.rectangle() as spacer:
+            if size is None:
+                spacer.set_size_strictness(1.0)
+            else:
+                id_parent = self.parent_stack[-2]
+                parent = self.rectangles[id_parent][0]
+                if parent.layout == Layout.ROW:
+                    spacer.set_width(size)
+                else:
+                    spacer.set_height(size)
 
     # @todo: Give a warning if name is not unique and append the rect_id to
     # make it unique.
@@ -150,47 +166,56 @@ class Application(object):
         css += f'#{rect_node[1]} {{\n'
         #css += 'display: block;\n'
         #css += 'overflow: hidden;\n'
-        css += 'position: absolute;\n'
 
-        if isinstance(rect.position[0], Number):
-            if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
-                css += f'left: {rect.position[0]}px;\n'
-            else:
-                css += f'right: {rect.position[0]}px;\n'
-        elif isinstance(rect.position[0], Expression):
-            vars = list(self._get_size_vars_in_expression(rect.position[0]))
-            if not vars:
-                css_expression = self._render_expression_css(rect.position[0])
+        if rect.layout == Layout.NONE:
+            if rect.position[0] is not None or rect.position[1] is not None:
+                css += 'position: absolute;\n'
 
+            if isinstance(rect.position[0], Number):
                 if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
-                    side = 'left'
+                    css += f'left: {rect.position[0]}px;\n'
                 else:
-                    side = 'right'
+                    css += f'right: {rect.position[0]}px;\n'
+            elif isinstance(rect.position[0], Expression):
+                vars = list(self._get_size_vars_in_expression(rect.position[0]))
+                if not vars:
+                    css_expression = self._render_expression_css(rect.position[0])
 
-                if rect.position[0].children:
-                    css += f'{side}: calc({css_expression[1:-1]});\n'
-                else:
-                    css += f'{side}: {css_expression};\n'
+                    if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
+                        side = 'left'
+                    else:
+                        side = 'right'
 
-        if isinstance(rect.position[1], Number):
-            if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
-                css += f'top: {rect.position[1]}px;\n'
-            else:
-                css += f'bottom: {rect.position[1]}px;\n'
-        elif isinstance(rect.position[1], Expression):
-            vars = list(self._get_size_vars_in_expression(rect.position[1]))
-            if not vars:
-                css_expression = self._render_expression_css(rect.position[1])
+                    if rect.position[0].children:
+                        css += f'{side}: calc({css_expression[1:-1]});\n'
+                    else:
+                        css += f'{side}: {css_expression};\n'
 
+            if isinstance(rect.position[1], Number):
                 if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
-                    side = 'top'
+                    css += f'top: {rect.position[1]}px;\n'
                 else:
-                    side = 'bottom'
+                    css += f'bottom: {rect.position[1]}px;\n'
+            elif isinstance(rect.position[1], Expression):
+                vars = list(self._get_size_vars_in_expression(rect.position[1]))
+                if not vars:
+                    css_expression = self._render_expression_css(rect.position[1])
 
-                if rect.position[1].children:
-                    css += f'{side}: calc({css_expression[1:-1]});\n'
-                else:
-                    css += f'{side}: {css_expression};\n'
+                    if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
+                        side = 'top'
+                    else:
+                        side = 'bottom'
+
+                    if rect.position[1].children:
+                        css += f'{side}: calc({css_expression[1:-1]});\n'
+                    else:
+                        css += f'{side}: {css_expression};\n'
+        else:
+            css += 'display: flex;\n'
+            css += 'flex-direction: %s;\n' % ('row' if rect.layout == Layout.ROW else 'column')
+
+        if rect.size_strictness is not None:
+            css += f'flex-grow: {rect.size_strictness};'
 
         if isinstance(rect.size[0], Number):
             css += f'width: {rect.size[0]}px;\n'
@@ -305,41 +330,42 @@ class Application(object):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
 
-        # @todo: Perhaps allow for a single block for both expressions.
-        if isinstance(rect.position[0], Expression):
-            size_vars = list(self._get_size_vars_in_expression(rect.position[0]))
-            if size_vars:
-                js += '{\n'
-                js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
-                for varname, rect_id in size_vars:
-                    rect_name = self.rectangles[rect_id][1]
-                    js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
-                    js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
-                js_expression = self._render_expression_js(rect.position[0])
-                js += f"const value = {js_expression};\n"
-                if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
-                    js += f"rect.style.left = value+'px';\n"
-                else:
-                    js += f"rect.style.right = value+'px';\n"
-                js += '}\n'
+        if rect.position is not None:
+            # @todo: Perhaps allow for a single block for both expressions.
+            if isinstance(rect.position[0], Expression):
+                size_vars = list(self._get_size_vars_in_expression(rect.position[0]))
+                if size_vars:
+                    js += '{\n'
+                    js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
+                    for varname, rect_id in size_vars:
+                        rect_name = self.rectangles[rect_id][1]
+                        js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
+                        js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
+                    js_expression = self._render_expression_js(rect.position[0])
+                    js += f"const value = {js_expression};\n"
+                    if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
+                        js += f"rect.style.left = value+'px';\n"
+                    else:
+                        js += f"rect.style.right = value+'px';\n"
+                    js += '}\n'
 
-        if isinstance(rect.position[1], Expression):
-            size_vars = list(self._get_size_vars_in_expression(rect.position[1]))
-            if size_vars:
-                # @todo: First check if there are any vars in expression?
-                js += '{\n'
-                js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
-                for varname, rect_id in size_vars:
-                    rect_name = self.rectangles[rect_id][1]
-                    js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
-                    js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
-                js_expression = self._render_expression_js(rect.position[1])
-                js += f"const value = {js_expression};\n"
-                if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
-                    js += f"rect.style.top = value+'px';\n"
-                else:
-                    js += f"rect.style.bottom = value+'px';\n"
-                js += '}\n'
+            if isinstance(rect.position[1], Expression):
+                size_vars = list(self._get_size_vars_in_expression(rect.position[1]))
+                if size_vars:
+                    # @todo: First check if there are any vars in expression?
+                    js += '{\n'
+                    js += f"const rect = document.querySelector('#{rect_node[1]}');\n"
+                    for varname, rect_id in size_vars:
+                        rect_name = self.rectangles[rect_id][1]
+                        js += f"const {rect_name} = document.querySelector('#{rect_name}');\n"
+                        js += f"const {rect_name}_{varname} = {rect_name}.getBoundingClientRect().{varname};\n"
+                    js_expression = self._render_expression_js(rect.position[1])
+                    js += f"const value = {js_expression};\n"
+                    if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.TOP_RIGHT:
+                        js += f"rect.style.top = value+'px';\n"
+                    else:
+                        js += f"rect.style.bottom = value+'px';\n"
+                    js += '}\n'
 
         if isinstance(rect.size[0], Expression):
             size_vars = list(self._get_size_vars_in_expression(rect.size[0]))
@@ -391,6 +417,7 @@ class Application(object):
 html, body {
     height: 100%;
     overflow-x: hidden;
+    margin: 0;
 }
 '''
 
@@ -402,6 +429,7 @@ html, body {
         # @todo: Generate a single block for all resizing so that we can reuse
         # quried variables. This requires keeping a cache of all the variables
         # that have been rendered already.
+        # @todo: Don't generate js file if no js code emitted.
         js = 'window.onload = () => {\n'
         for rn in self.rectangles:
             if rn == self.root_id:
@@ -447,13 +475,12 @@ Coord2d = [Expression.Type, Expression.Type]
 class Rectangle(object):
     def __init__(self):
         rect_id = id(self)
-        self.position = [0,0]
-        self.size     = [
-            Expression(f'width {rect_id}'),
-            Expression(f'height {rect_id}')
-        ]
+        self.position = [None, None]
+        self.size     = [None, None]
+        self.size_strictness = None
 
         self.pivot          = Pivot.TOP_LEFT
+        self.layout         = Layout.NONE
         self.text           = None
         self.link           = None
         self.image          = None
@@ -461,6 +488,10 @@ class Rectangle(object):
 
     def set_size(self, size: Coord2d):
         self.size = size
+
+    def set_size_strictness(self, strictness: Number):
+        assert(strictness >= 0.0 and strictness <= 1.0)
+        self.size_strictness = strictness
 
     def set_width(self, width: Expression.Type):
         self.size[0] = width
@@ -471,13 +502,17 @@ class Rectangle(object):
     def get_size(self):
         rect_id = id(self)
         return [
-            Expression(f'width {rect_id}'),
-            Expression(f'height {rect_id}')
+            self.size[0] if isinstance(self.size[0], Number) else Expression(f'width {rect_id}'),
+            self.size[1] if isinstance(self.size[1], Number) else Expression(f'height {rect_id}')
         ]
 
     def set_position(self, position: Coord2d, pivot: Pivot = Pivot.TOP_LEFT):
         self.position = position
         self.pivot    = pivot
+        self.layout   = Layout.NONE
+
+    def set_layout(self, layout: Layout):
+        self.layout = layout
 
     def set_link(self, link: str):
         self.link = link
