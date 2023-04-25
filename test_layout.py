@@ -4,15 +4,130 @@ import py2web as pw
 # TODO:
 #     * Implement other things like forms?
 
-# @todo: Think about if we want to keep a "cursor" like dear imgui. Then we can
-# set the layout for some automatic positioning.
+# @note: Implement forms like this? Forms are basically rectangles with extra
+# functions for input.
+# with app.form('my_form') as form:
+#     form.textbox('input')
+#     form.radio(['HTML', 'CSS', 'JS'])
+#     form.checkbox('hi')
+#     form.slider(0, 1)
+
+def header(app, header_height=60):
+
+    with app.rectangle('header') as header:
+        header.set_size([ViewportWidth, header_height])
+        header.set_fill_color(39, 40, 34)
+        header.set_font('Roboto')
+        header.set_font_size(17)
+        header.set_layout(Layout.ROW)
+
+        app.spacer(10)
+
+        with app.rectangle('home_button_rect') as home_button_rect:
+            home_button_rect.set_layout(Layout.COLUMN)
+            app.spacer()
+            with app.rectangle('home_button') as home_button:
+                home_button.set_link('index.html')
+                home_button.set_text('NICK TASIOS')
+                home_button.set_text_color(248, 248, 242)
+                home_button.set_font_size(34)
+
+                home_button.style['text-decoration'] = 'none';
+            app.spacer()
+
+        app.spacer()
+
+        with app.rectangle('menu_rect') as menu_rect:
+            menu_rect.set_layout(Layout.COLUMN)
+
+            app.spacer()
+            with app.rectangle('menu') as menu:
+                menu.set_layout(Layout.ROW)
+
+                with app.rectangle('menu_projects') as menu_projects:
+                    menu_projects.set_link('projects/')
+                    menu_projects.set_text('Projects')
+                    menu_projects.set_text_color(248, 248, 242)
+
+                    menu_projects.style['text-decoration'] = 'none';
+
+                app.spacer(30)
+
+                with app.rectangle('menu_blog') as menu_blog:
+                    menu_blog.set_link('posts/')
+                    menu_blog.set_text('Blog')
+                    menu_blog.set_text_color(248, 248, 242)
+
+                    menu_blog.style['text-decoration'] = 'none';
+
+                app.spacer(30)
+
+                with app.rectangle('menu_about') as menu_about:
+                    menu_about.set_link('about/')
+                    menu_about.set_text('About')
+                    menu_about.set_text_color(248, 248, 242)
+
+                    menu_about.style['text-decoration'] = 'none';
+
+                app.spacer(30)
+
+            app.spacer()
+
+def main_content(app):
+
+    with app.rectangle('main_content_rect') as main_content_rect:
+        num_projects     = len(project_descriptions)
+        image_size       = 200
+        project_distance = 50
+
+        main_content_rect.set_layout(Layout.ROW)
+        main_content_rect.set_fill_color(64, 64, 64)
+        main_content_rect.set_font('Roboto')
+        main_content_rect.set_font_size(17)
+
+        app.spacer()
+
+        with app.rectangle('main_content') as main_content:
+
+            main_content.set_layout(Layout.COLUMN)
+
+            app.spacer(30)
+
+            top = project_distance // 2
+            for i in range(num_projects):
+                project_id = 'project%d' % i
+                with app.rectangle(project_id, class_name='project') as project:
+                    project.set_layout(Layout.ROW)
+
+                    with app.rectangle(project_id + '_image_rect') as project_image_rect:
+                        project_image_rect.set_layout(Layout.COLUMN)
+
+                        app.spacer()
+                        with app.rectangle(project_id + '_image', class_name='project_image') as project_image:
+                            project_image.set_image(project_images[i])
+                            project_image.set_width(image_size)
+                        app.spacer()
+
+                    app.spacer(30)
+
+                    with app.rectangle(project_id + '_text_rect') as project_text_rect:
+                        project_text_rect.set_layout(Layout.COLUMN)
+
+                        app.spacer()
+                        with app.rectangle(project_id + '_text', class_name='project_text') as project_text:
+                            project_text.set_width(748-image_size-30)
+                            project_text.set_text(project_descriptions[i])
+                            project_text.set_text_color(248, 248, 242)
+                        app.spacer()
+
+                app.spacer(project_distance)
+
+        app.spacer()
 
 if __name__ == '__main__':
 
     app = pw.Application()
     app.set_metadata('<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">')
-
-    header_height = 60
 
     # @todo: Perhaps use markdown to generate the project descriptions.
     project_descriptions = [
@@ -37,115 +152,11 @@ if __name__ == '__main__':
 
     with app.rectangle('main') as main:
         main.set_layout(Layout.COLUMN)
-
-        with app.rectangle('header') as header:
-            header.set_size([ViewportWidth, header_height])
-            header.set_fill_color(39, 40, 34)
-            header.set_font('Roboto')
-            header.set_font_size(17)
-            header.set_layout(Layout.ROW)
-
-            app.Spacer(10)
-
-            with app.rectangle('home_button_rect') as home_button_rect:
-                home_button_rect.set_layout(Layout.COLUMN)
-                app.Spacer()
-                with app.rectangle('home_button') as home_button:
-                    home_button.set_link('index.html')
-                    home_button.set_text('NICK TASIOS')
-                    home_button.set_text_color(248, 248, 242)
-                    home_button.set_font_size(34)
-
-                    home_button.style['text-decoration'] = 'none';
-                app.Spacer()
-
-            app.Spacer()
-
-            with app.rectangle('menu_rect') as menu_rect:
-                menu_rect.set_layout(Layout.COLUMN)
-
-                app.Spacer()
-                with app.rectangle('menu') as menu:
-                    menu.set_layout(Layout.ROW)
-
-                    with app.rectangle('menu_projects') as menu_projects:
-                        menu_projects.set_link('projects/')
-                        menu_projects.set_text('Projects')
-                        menu_projects.set_text_color(248, 248, 242)
-
-                        menu_projects.style['text-decoration'] = 'none';
-
-                    app.Spacer(30)
-
-                    with app.rectangle('menu_blog') as menu_blog:
-                        menu_blog.set_link('posts/')
-                        menu_blog.set_text('Blog')
-                        menu_blog.set_text_color(248, 248, 242)
-
-                        menu_blog.style['text-decoration'] = 'none';
-
-                    app.Spacer(30)
-
-                    with app.rectangle('menu_about') as menu_about:
-                        menu_about.set_link('about/')
-                        menu_about.set_text('About')
-                        menu_about.set_text_color(248, 248, 242)
-
-                        menu_about.style['text-decoration'] = 'none';
-
-                    app.Spacer(30)
-
-                app.Spacer()
-
-        with app.rectangle('main_content_rect') as main_content_rect:
-            num_projects     = len(project_descriptions)
-            image_size       = 200
-            project_distance = 50
-
-            main_content_rect.set_layout(Layout.ROW)
-            main_content_rect.set_fill_color(64, 64, 64)
-            main_content_rect.set_font('Roboto')
-            main_content_rect.set_font_size(17)
-
-            app.Spacer()
-
-            with app.rectangle('main_content') as main_content:
-
-                main_content.set_layout(Layout.COLUMN)
-
-                app.Spacer(30)
-
-                top = project_distance // 2
-                for i in range(num_projects):
-                    with app.rectangle('project%d' % i, class_name='project') as project:
-                        project.set_layout(Layout.ROW)
-
-                        with app.rectangle('project%d_image_rect' % i) as project_image_rect:
-                            project_image_rect.set_layout(Layout.COLUMN)
-
-                            app.Spacer()
-                            with app.rectangle('project%d_image' % i, class_name='project_image') as project_image:
-                                project_image.set_image(project_images[i])
-                                project_image.set_width(image_size)
-                            app.Spacer()
-
-                        app.Spacer(30)
-
-                        with app.rectangle('project%d_text_rect' % i) as project_text_rect:
-                            project_text_rect.set_layout(Layout.COLUMN)
-
-                            app.Spacer()
-                            with app.rectangle('project%d_text' % i, class_name='project_text') as project_text:
-                                project_text.set_width(748-image_size-30)
-                                project_text.set_text(project_descriptions[i])
-                                project_text.set_text_color(248, 248, 242)
-                            app.Spacer()
-
-                    app.Spacer(project_distance)
-
-            app.Spacer()
+        header(app)
+        main_content(app)
 
     html, css, js = app.render()
+
     css += '''
 :link {
     color: #47e3ff;

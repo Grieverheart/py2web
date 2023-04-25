@@ -84,7 +84,7 @@ class Application(object):
     def set_metadata(self, metadata):
         self.metadata = metadata
 
-    def Spacer(self, size: Number = None):
+    def spacer(self, size: Number = None):
         with self.rectangle() as spacer:
             if size is None:
                 spacer.set_size_strictness(1.0)
@@ -122,13 +122,6 @@ class Application(object):
             yield self.push_rectangle(name, class_name)
         finally:
             self.pop_rectangle()
-
-    # @todo: Perhaps alternative to centering manually.
-    # We can implement this using css transform: translate, but for text it's
-    # a problem as wrapping is done pre-transform.
-    #def center_vertically(self, rectangle: 'Rectangle'):
-    #    rect_id = id(rectangle)
-    #    self.rect_settings[rect_id]['vcenter'] = True
 
     def _render_rect_html(self, rect_id):
         rect_node = self.rectangles[rect_id]
@@ -502,7 +495,7 @@ class Rectangle(object):
     def get_size(self):
         rect_id = id(self)
         return [
-            self.size[0] if isinstance(self.size[0], Number) else Expression(f'width {rect_id}'),
+            self.size[0] if isinstance(self.size[0], Number) else Expression(f'width  {rect_id}'),
             self.size[1] if isinstance(self.size[1], Number) else Expression(f'height {rect_id}')
         ]
 
