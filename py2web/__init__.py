@@ -1,19 +1,32 @@
-from enum import Enum
+from enum import IntEnum
 from typing import Union, Tuple
 from numbers import Number
 from contextlib import contextmanager
 
-class Pivot(Enum):
+class Pivot(IntEnum):
     CENTER       = 0
     TOP_LEFT     = 1
     TOP_RIGHT    = 2
     BOTTOM_RIGHT = 3
     BOTTOM_LEFT  = 4
 
-class Layout(Enum):
+class Layout(IntEnum):
     NONE    = 0
     ROW     = 1
     COLUMN  = 2
+
+# @todo: Implement rest of input types.
+
+class RectType(IntEnum):
+    RECT     = 0
+    LABEL    = 1
+    FORM     = 2
+    # input types from here
+    TEXTBOX  = 3
+    RADIO    = 4
+    CHECKBOX = 5
+    SUBMIT   = 6
+    BUTTON   = 7
 
 class Expression(object):
 
@@ -70,16 +83,19 @@ op_str_dict = {
 
 class Application(object):
 
+    # @todo: Actually create a root rectangle for representing the body tag.
     def __init__(self):
         # Each entry has format [Rectangle, name, parent_id, children_ids...]
         # where parent_id can be None, and children_ids can be empty.
         # The root rectangle contains only children ids.
-        self.rectangles = {}
-        self.root_id = id(self)
+        self.rectangles               = {}
+        self.root_id                  = id(self)
         self.rectangles[self.root_id] = []
-        self.metadata = None
-        self.rect_settings = {}
-        self.parent_stack = [self.root_id]
+        self.metadata                 = None
+        self.rect_settings            = {}
+        self.parent_stack             = [self.root_id]
+        self.current_form_id          = None
+        self.label_refs               = {}
 
     def set_metadata(self, metadata):
         self.metadata = metadata
@@ -87,7 +103,7 @@ class Application(object):
     def spacer(self, size: Number = None):
         with self.rectangle() as spacer:
             if size is None:
-                spacer.set_size_strictness(1.0)
+                spacer.set_grow(1.0)
             else:
                 id_parent = self.parent_stack[-2]
                 parent = self.rectangles[id_parent][0]
@@ -109,7 +125,11 @@ class Application(object):
 
     def push_rectangle(self, name=None, class_name=None):
         current_id_parent = self.parent_stack[-1]
-        rect = self._create_rectangle(rect_id_parent=current_id_parent, name=name, class_name=class_name)
+        rect = self._create_rectangle(
+            rect_id_parent=current_id_parent,
+            name=name,
+            class_name=class_name
+        )
         self.parent_stack.append(id(rect))
         return rect
 
@@ -123,6 +143,93 @@ class Application(object):
         finally:
             self.pop_rectangle()
 
+    @contextmanager
+    def form(self, name=None, class_name=None):
+        try:
+            rect = self.push_rectangle(name, class_name)
+            rect.type = RectType.FORM
+            self.current_form_id = id(rect)
+            yield rect
+        finally:
+            self.pop_rectangle()
+            self.current_form_id = None
+
+    def _make_input_label_pair(self, name=None, class_name=None):
+        current_id_parent = self.parent_stack[-1]
+
+        label_rect = self._create_rectangle(
+            rect_id_parent=current_id_parent,
+            class_name=class_name
+        )
+
+        input_rect = self._create_rectangle(
+            rect_id_parent=current_id_parent,
+            name=name,
+            class_name=class_name
+        )
+
+        label_rect.type = RectType.LABEL
+
+        self.label_refs[id(label_rect)] = id(input_rect)
+
+        return input_rect, label_rect
+
+
+    def textbox_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('textbox needs to be called within the context of a form.')
+            assert(False)
+
+        textbox, label = self._make_input_label_pair(name, class_name)
+        textbox.type = RectType.TEXTBOX
+
+        return textbox, label
+
+    def radio_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('radio needs to be called within the context of a form.')
+            assert(False)
+
+        radio, label = self._make_input_label_pair(name, class_name)
+        radio.type = RectType.RADIO
+
+        return radio, label
+
+    def checkbox_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('checkbox needs to be called within the context of a form.')
+            assert(False)
+
+        checkbox, label = self._make_input_label_pair(name, class_name)
+        checkbox.type = RectType.CHECKBOX
+
+        return checkbox, label
+
+    def submit_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('submit needs to be called within the context of a form.')
+            assert(False)
+
+        submit, label = self._make_input_label_pair(name, class_name)
+        submit.type = RectType.SUBMIT
+
+        return submit, label
+
+    def button_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('button needs to be called within the context of a form.')
+            assert(False)
+
+        button, label = self._make_input_label_pair(name, class_name)
+        button.type = RectType.BUTTON
+
+        return button, label
+
     def _render_rect_html(self, rect_id):
         rect_node = self.rectangles[rect_id]
         rect = rect_node[0]
@@ -131,7 +238,41 @@ class Application(object):
         if rect_node[2]:
             tags += f'class="{rect_node[2]}" '
 
-        if rect.link and rect.image:
+        if rect.type == RectType.LABEL:
+            ref_id = self.label_refs[id(rect)]
+            ref_node = self.rectangles[ref_id]
+            html = f'<label for="{ref_node[1]}" {tags}>'
+            closing_element = '</label>\n'
+        elif rect.type == RectType.FORM:
+            html = f'<form {tags}>'
+            closing_element = '</form>\n'
+        elif rect.type >= RectType.TEXTBOX:
+            tags += f'name="{rect_node[1]}" '
+            input_type = ''
+            if rect.type == RectType.TEXTBOX:
+                input_type = 'text'
+            elif rect.type == RectType.RADIO:
+                input_type = 'radio'
+                if rect.checked:
+                    tags += f'checked'
+            elif rect.type == RectType.CHECKBOX:
+                input_type = 'checkbox'
+                if rect.checked:
+                    tags += f'checked'
+            elif rect.type == RectType.SUBMIT:
+                input_type = 'submit'
+            elif rect.type == RectType.BUTTON:
+                input_type = 'button'
+            else:
+                # @todo: Raise exception
+                print(f'RectType {rect.type} not implemented')
+                assert(False)
+
+            value = '' if rect.value is None else rect.value
+            html = f'<input type="{input_type}" value="{value}" {tags}>'
+            closing_element = '</input>\n'
+
+        elif rect.link and rect.image:
             html = f'<a href="{rect.link}"><img src="{rect.image}" {tags}>'
             closing_element = '</img></a>\n'
         elif rect.image:
@@ -207,8 +348,8 @@ class Application(object):
             css += 'display: flex;\n'
             css += 'flex-direction: %s;\n' % ('row' if rect.layout == Layout.ROW else 'column')
 
-        if rect.size_strictness is not None:
-            css += f'flex-grow: {rect.size_strictness};'
+        if rect.grow is not None:
+            css += f'flex-grow: {rect.grow};'
 
         if isinstance(rect.size[0], Number):
             css += f'width: {rect.size[0]}px;\n'
@@ -467,24 +608,32 @@ Coord2d = [Expression.Type, Expression.Type]
 
 class Rectangle(object):
     def __init__(self):
-        rect_id = id(self)
+        rect_id       = id(self)
         self.position = [None, None]
         self.size     = [None, None]
-        self.size_strictness = None
+        self.grow     = None
 
-        self.pivot          = Pivot.TOP_LEFT
-        self.layout         = Layout.NONE
-        self.text           = None
-        self.link           = None
-        self.image          = None
-        self.style          = {}
+        self.pivot  = Pivot.TOP_LEFT
+        self.layout = Layout.NONE
+        self.text   = None
+        self.link   = None
+        self.image  = None
+        self.style  = {}
+
+        self.value   = None
+        self.checked = False
+
+        # Either <div> (can be link)
+        # or <form>
+        # or <input> (with input type)
+        self.type = RectType.RECT
 
     def set_size(self, size: Coord2d):
         self.size = size
 
-    def set_size_strictness(self, strictness: Number):
+    def set_grow(self, strictness: Number):
         assert(strictness >= 0.0 and strictness <= 1.0)
-        self.size_strictness = strictness
+        self.grow = strictness
 
     def set_width(self, width: Expression.Type):
         self.size[0] = width
@@ -515,6 +664,16 @@ class Rectangle(object):
 
     def set_text(self, text):
         self.text = text
+
+    # @note: Only for input
+    def set_input_value(self, value):
+        assert(self.type >= RectType.TEXTBOX)
+        self.value = value
+
+    # @note: Only for input
+    def set_input_checked(self):
+        assert(self.type == RectType.CHECKBOX or self.type == RectType.RADIO)
+        self.checked = True
 
     def set_text_alignment(self, alignment: str):
         self.style['text-alignment'] = alignment

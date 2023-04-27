@@ -1,17 +1,6 @@
 from py2web import Layout, Pivot, ViewportWidth, ViewportHeight, ParentExtent
 import py2web as pw
 
-# TODO:
-#     * Implement other things like forms?
-
-# @note: Implement forms like this? Forms are basically rectangles with extra
-# functions for input.
-# with app.form('my_form') as form:
-#     form.textbox('input')
-#     form.radio(['HTML', 'CSS', 'JS'])
-#     form.checkbox('hi')
-#     form.slider(0, 1)
-
 def header(app, header_height=60):
 
     with app.rectangle('header') as header:
@@ -86,6 +75,11 @@ def main_content(app):
         main_content_rect.set_font_size(17)
 
         app.spacer()
+
+        #with app.form('my_form') as form:
+        #    textbox, label = app.textbox_input('textbox')
+        #    label.set_text('hello')
+        #    textbox.set_input_value('john')
 
         with app.rectangle('main_content') as main_content:
 
