@@ -80,6 +80,7 @@ def main_content(app):
         #    textbox, label = app.textbox_input('textbox')
         #    label.set_text('hello')
         #    textbox.set_input_value('john')
+        #    submit, label = app.submit_input('submit')
 
         with app.rectangle('main_content') as main_content:
 

@@ -15,8 +15,6 @@ class Layout(IntEnum):
     ROW     = 1
     COLUMN  = 2
 
-# @todo: Implement rest of input types.
-
 class RectType(IntEnum):
     RECT     = 0
     LABEL    = 1
@@ -27,6 +25,48 @@ class RectType(IntEnum):
     CHECKBOX = 5
     SUBMIT   = 6
     BUTTON   = 7
+    COLOR    = 8
+    DATE     = 9
+    DATETIME = 10
+    EMAIL    = 11
+    FILE     = 12
+    HIDDEN   = 13
+    IMAGE    = 14
+    MONTH    = 15
+    NUMBER   = 16
+    PASSWORD = 17
+    RANGE    = 18
+    RESET    = 19
+    SEARCH   = 20
+    TEL      = 21
+    TIME     = 22
+    URL      = 23
+    WEEK     = 24
+
+rect_type_strings = {
+    RectType.TEXTBOX  : 'text',
+    RectType.RADIO    : 'radio',
+    RectType.CHECKBOX : 'checkbox',
+    RectType.SUBMIT   : 'submit',
+    RectType.BUTTON   : 'button',
+    RectType.COLOR    : 'color',
+    RectType.DATE     : 'date',
+    RectType.DATETIME : 'datetime',
+    RectType.EMAIL    : 'email',
+    RectType.FILE     : 'file',
+    RectType.HIDDEN   : 'hidden',
+    RectType.IMAGE    : 'image',
+    RectType.MONTH    : 'month',
+    RectType.NUMBER   : 'number',
+    RectType.PASSWORD : 'password',
+    RectType.RANGE    : 'range',
+    RectType.RESET    : 'reset',
+    RectType.SEARCH   : 'search',
+    RectType.TEL      : 'tel',
+    RectType.TIME     : 'time',
+    RectType.URL      : 'url',
+    RectType.WEEK     : 'week',
+}
 
 class Expression(object):
 
@@ -181,10 +221,10 @@ class Application(object):
             print('textbox needs to be called within the context of a form.')
             assert(False)
 
-        textbox, label = self._make_input_label_pair(name, class_name)
-        textbox.type = RectType.TEXTBOX
+        textbox_rect, label_rect = self._make_input_label_pair(name, class_name)
+        textbox_rect.type = RectType.TEXTBOX
 
-        return textbox, label
+        return textbox_rect, label_rect
 
     def radio_input(self, name=None, class_name=None):
         if self.current_form_id is None:
@@ -192,10 +232,10 @@ class Application(object):
             print('radio needs to be called within the context of a form.')
             assert(False)
 
-        radio, label = self._make_input_label_pair(name, class_name)
-        radio.type = RectType.RADIO
+        radio_rect, label_rect = self._make_input_label_pair(name, class_name)
+        radio_rect.type = RectType.RADIO
 
-        return radio, label
+        return radio_rect, label_rect
 
     def checkbox_input(self, name=None, class_name=None):
         if self.current_form_id is None:
@@ -203,10 +243,10 @@ class Application(object):
             print('checkbox needs to be called within the context of a form.')
             assert(False)
 
-        checkbox, label = self._make_input_label_pair(name, class_name)
-        checkbox.type = RectType.CHECKBOX
+        checkbox_rect, label_rect = self._make_input_label_pair(name, class_name)
+        checkbox_rect.type = RectType.CHECKBOX
 
-        return checkbox, label
+        return checkbox_rect, label_rect
 
     def submit_input(self, name=None, class_name=None):
         if self.current_form_id is None:
@@ -214,10 +254,10 @@ class Application(object):
             print('submit needs to be called within the context of a form.')
             assert(False)
 
-        submit, label = self._make_input_label_pair(name, class_name)
-        submit.type = RectType.SUBMIT
+        submit_rect, label_rect = self._make_input_label_pair(name, class_name)
+        submit_rect.type = RectType.SUBMIT
 
-        return submit, label
+        return submit_rect, label_rect
 
     def button_input(self, name=None, class_name=None):
         if self.current_form_id is None:
@@ -225,10 +265,197 @@ class Application(object):
             print('button needs to be called within the context of a form.')
             assert(False)
 
-        button, label = self._make_input_label_pair(name, class_name)
-        button.type = RectType.BUTTON
+        button_rect, label_rect = self._make_input_label_pair(name, class_name)
+        button_rect.type = RectType.BUTTON
 
-        return button, label
+        return button_rect, label_rect
+
+    def color_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('color_input needs to be called within the context of a form.')
+            assert(False)
+
+        color_rect, label_rect = self._make_input_label_pair(name, class_name)
+        color_rect.type = RectType.COLOR
+
+        return color_rect, label_rect
+
+    def date_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('date_input needs to be called within the context of a form.')
+            assert(False)
+
+        date_rect, label_rect = self._make_input_label_pair(name, class_name)
+        date_rect.type = RectType.DATE
+
+        return date_rect, label_rect
+
+    def datetime_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('datetime_input needs to be called within the context of a form.')
+            assert(False)
+
+        datetime_rect, label_rect = self._make_input_label_pair(name, class_name)
+        datetime_rect.type = RectType.DATETIME
+
+        return datetime_rect, label_rect
+
+    def email_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('email_input needs to be called within the context of a form.')
+            assert(False)
+
+        email_rect, label_rect = self._make_input_label_pair(name, class_name)
+        email_rect.type = RectType.EMAIL
+
+        return email_rect, label_rect
+
+    def file_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('file_input needs to be called within the context of a form.')
+            assert(False)
+
+        file_rect, label_rect = self._make_input_label_pair(name, class_name)
+        file_rect.type = RectType.FILE
+
+        return file_rect, label_rect
+
+    def hidden_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('hidden_input needs to be called within the context of a form.')
+            assert(False)
+
+        hidden_rect, label_rect = self._make_input_label_pair(name, class_name)
+        hidden_rect.type = RectType.HIDDEN
+
+        return hidden_rect, label_rect
+
+    def image_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('image_input needs to be called within the context of a form.')
+            assert(False)
+
+        image_rect, label_rect = self._make_input_label_pair(name, class_name)
+        image_rect.type = RectType.IMAGE
+
+        return image_rect, label_rect
+
+    def month_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('month_input needs to be called within the context of a form.')
+            assert(False)
+
+        month_rect, label_rect = self._make_input_label_pair(name, class_name)
+        month_rect.type = RectType.MONTH
+
+        return month_rect, label_rect
+
+    def number_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('number_input needs to be called within the context of a form.')
+            assert(False)
+
+        number_rect, label_rect = self._make_input_label_pair(name, class_name)
+        number_rect.type = RectType.NUMBER
+
+        return number_rect, label_rect
+
+    def password_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('password_input needs to be called within the context of a form.')
+            assert(False)
+
+        password_rect, label_rect = self._make_input_label_pair(name, class_name)
+        password_rect.type = RectType.PASSWORD
+
+        return password_rect, label_rect
+
+    def range_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('range_input needs to be called within the context of a form.')
+            assert(False)
+
+        range_rect, label_rect = self._make_input_label_pair(name, class_name)
+        range_rect.type = RectType.RANGE
+
+        return range_rect, label_rect
+
+    def reset_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('reset_input needs to be called within the context of a form.')
+            assert(False)
+
+        reset_rect, label_rect = self._make_input_label_pair(name, class_name)
+        reset_rect.type = RectType.RESET
+
+        return reset_rect, label_rect
+
+    def search_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('search_input needs to be called within the context of a form.')
+            assert(False)
+
+        search_rect, label_rect = self._make_input_label_pair(name, class_name)
+        search_rect.type = RectType.SEARCH
+
+        return search_rect, label_rect
+
+    def tel_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('tel_input needs to be called within the context of a form.')
+            assert(False)
+
+        tel_rect, label_rect = self._make_input_label_pair(name, class_name)
+        tel_rect.type = RectType.TEL
+
+        return tel_rect, label_rect
+
+    def time_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('time_input needs to be called within the context of a form.')
+            assert(False)
+
+        time_rect, label_rect = self._make_input_label_pair(name, class_name)
+        time_rect.type = RectType.TIME
+
+        return time_rect, label_rect
+
+    def url_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('url_input needs to be called within the context of a form.')
+            assert(False)
+
+        url_rect, label_rect = self._make_input_label_pair(name, class_name)
+        url_rect.type = RectType.URL
+
+        return url_rect, label_rect
+
+    def week_input(self, name=None, class_name=None):
+        if self.current_form_id is None:
+            # @todo: Raise exception
+            print('week_input needs to be called within the context of a form.')
+            assert(False)
+
+        week_rect, label_rect = self._make_input_label_pair(name, class_name)
+        week_rect.type = RectType.WEEK
+
+        return week_rect, label_rect
 
     def _render_rect_html(self, rect_id):
         rect_node = self.rectangles[rect_id]
@@ -246,30 +473,18 @@ class Application(object):
         elif rect.type == RectType.FORM:
             html = f'<form {tags}>'
             closing_element = '</form>\n'
-        elif rect.type >= RectType.TEXTBOX:
+        elif rect.type >= RectType.TEXTBOX and rect.type <= RectType.WEEK:
             tags += f'name="{rect_node[1]}" '
-            input_type = ''
-            if rect.type == RectType.TEXTBOX:
-                input_type = 'text'
-            elif rect.type == RectType.RADIO:
-                input_type = 'radio'
+            input_type = rect_type_strings[rect.type]
+            if (rect.type == RectType.RADIO) or (rect.type == RectType.CHECKBOX):
                 if rect.checked:
                     tags += f'checked'
-            elif rect.type == RectType.CHECKBOX:
-                input_type = 'checkbox'
-                if rect.checked:
-                    tags += f'checked'
-            elif rect.type == RectType.SUBMIT:
-                input_type = 'submit'
-            elif rect.type == RectType.BUTTON:
-                input_type = 'button'
-            else:
-                # @todo: Raise exception
-                print(f'RectType {rect.type} not implemented')
-                assert(False)
 
-            value = '' if rect.value is None else rect.value
-            html = f'<input type="{input_type}" value="{value}" {tags}>'
+            if rect.value is None:
+                html = f'<input type="{input_type}" {tags}>'
+            else:
+                html = f'<input type="{input_type}" value="{rect.value}" {tags}>'
+
             closing_element = '</input>\n'
 
         elif rect.link and rect.image:
