@@ -4,7 +4,7 @@ py2web is an experimental library for generating html interfaces programmaticall
 
 ## Example code
 
-You can find example code in `test.py`. This code tries to reconstruct a page on my website <http://nicktasios.nl/projects/>. After running the code, the html, css, and javscript code is generated and output into appropriate files. `index.html` can be viewed on a browser.
+You can find example code in `test.py` and `test_layout.py`. This code tries to reconstruct a page on my website <http://nicktasios.nl/projects/>. After running the code, the html, css, and javscript code is generated and output into appropriate files. `index.html` can be viewed on a browser. In `test.py`, a more basic approach is taken, where positions and sizes are specified explicitly. This requires JS code to determine these when loading the webpage. `test_layout.py` on the other hand uses [flexbox](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox) to create an even simpler API, similar to [figma](https://www.figma.com)'s row/column layouts. No margins, paddings, etc., are implemented, but instead, flexible spacer elements are used to achieve the desired positioning.
 
 ## Motivation
 
@@ -12,7 +12,7 @@ Over the years, as many standards, the web has become overly complicated. Being 
 
 ## Interface
 
-The basic building block in py2web is a `Rectangle`. These rectangles are always positioned absolutely with respect to their parent rectangle. They allow to be filled with text, and can be links, or images. Scope is a tool that fits nicely with the concept of elements having children, so py2web uses the Python context manager to open scopes whenever a rectangle is created using the `with` keyword:
+The basic building block in py2web is a `Rectangle`. These rectangles are always positioned absolutely with respect to their parent rectangle, unless `set_layout` is called with either `Layout.ROW`, or `Layout.COLUMN`. They allow to be filled with text, and can be links, or images. Scope is a tool that fits nicely with the concept of elements having children, so py2web uses the Python context manager to open scopes whenever a rectangle is created using the `with` keyword:
 ```Python
 with app.rectangle('menu') as menu:
     header_menu_width = header.get_size()[0] - home_button_width - 10
