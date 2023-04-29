@@ -123,19 +123,21 @@ op_str_dict = {
 
 class Application(object):
 
-    # @todo: Actually create a root rectangle for representing the body tag.
     def __init__(self):
-        # Each entry has format [Rectangle, name, parent_id, children_ids...]
+        # Each entry has format [Rectangle, name, class_name, parent_id, children_ids...]
         # where parent_id can be None, and children_ids can be empty.
         # The root rectangle contains only children ids.
         self.rectangles               = {}
         self.root_id                  = id(self)
-        self.rectangles[self.root_id] = []
+        self.rectangles[self.root_id] = [Rectangle(), 'body_' + str(self.root_id), None, None]
         self.metadata                 = None
         self.rect_settings            = {}
         self.parent_stack             = [self.root_id]
         self.current_form_id          = None
         self.label_refs               = {}
+
+    def root(self):
+        return self.rectangles[self.root_id][0]
 
     def set_metadata(self, metadata):
         self.metadata = metadata
@@ -497,8 +499,12 @@ class Application(object):
             html = f'<a href="{rect.link}" {tags}>'
             closing_element = '</a>\n'
         else:
-            html = f'<div {tags}>'
-            closing_element = '</div>\n'
+            if rect_id != self.root_id:
+                html = f'<div {tags}>'
+                closing_element = '</div>\n'
+            else:
+                html = f'<body {tags}>'
+                closing_element = '</body>\n'
 
         if rect.text is not None:
             html += rect.text
@@ -754,11 +760,7 @@ class Application(object):
         html += '<script src="code.js"></script>\n'
         html += self.metadata
         html += '</head>\n'
-        html += '<body>\n'
-        root = self.rectangles[self.root_id]
-        for i in range(len(root)):
-            html += self._render_rect_html(root[i])
-        html += '</body>\n'
+        html += self._render_rect_html(self.root_id)
         html += '</html>\n'
 
         css = ''
@@ -771,8 +773,6 @@ html, body {
 '''
 
         for rn in self.rectangles:
-            if rn == self.root_id:
-                continue
             css += self._render_rect_css(rn)
 
         # @todo: Generate a single block for all resizing so that we can reuse
@@ -781,8 +781,6 @@ html, body {
         # @todo: Don't generate js file if no js code emitted.
         js = 'window.onload = () => {\n'
         for rn in self.rectangles:
-            if rn == self.root_id:
-                continue
             js += self._render_rect_js(rn)
         js += '};\n'
 

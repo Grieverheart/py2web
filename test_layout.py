@@ -70,7 +70,6 @@ def main_content(app):
         project_distance = 50
 
         main_content_rect.set_layout(Layout.ROW)
-        main_content_rect.set_fill_color(64, 64, 64)
         main_content_rect.set_font('Roboto')
         main_content_rect.set_font_size(17)
 
@@ -144,6 +143,8 @@ if __name__ == '__main__':
         'files/ions3d.png',
         'files/inip.png',
     ]
+
+    app.root().set_fill_color(64, 64, 64)
 
     with app.rectangle('main') as main:
         main.set_layout(Layout.COLUMN)
