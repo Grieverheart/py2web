@@ -53,8 +53,77 @@ The `rectangle` function takes as optional arguments the rectangle name (which g
 
 Due to having to use placeholders for various variables, the `Expression` class encapsulates any mathematical expressions involving placeholders and regular numbers. These expressions are translated into CSS `calc` or javascript expressions when calling the `Application.render` method, which generates HTML/CSS/JS code.
 
-## Future
+A simpler approach can be taken using the automatic layout. To create the header of the example found in `test_layout.py`, the following code is used:
+```python
+app.root().set_fill_color(64, 64, 64)
+header_height = 60
+with app.rectangle('main') as main:
+    main.set_layout(Layout.COLUMN)
 
-Although py2web is currently in the proof of concept phase, if there enough is enough interest, I intend to expand its feature set. For example, [Dear ImGui](https://github.com/ocornut/imgui) makes it very easy to quickly build rich interfaces. This is partly facilitated by its automatic positioning and sizing of elements, something that is currently done manually in py2web. It would be nice to incorporate such features in the library, and also build a library of configurable elements.
+    with app.rectangle('header') as header:
+        header.set_size([ViewportWidth, header_height])
+        header.set_fill_color(39, 40, 34)
+        header.set_font('Roboto')
+        header.set_font_size(17)
+        header.set_layout(Layout.ROW)
 
-Do note that Dear ImGui is created with the intention of building GUIs, while py2web is created with the intention of building websites. For building GUIs using HTML, please check the experimental library at <https://github.com/greggman/ImHUI>.
+        app.spacer(10)
+
+        with app.rectangle('home_button_rect') as home_button_rect:
+            home_button_rect.set_layout(Layout.COLUMN)
+            app.spacer()
+            with app.rectangle('home_button') as home_button:
+                home_button.set_link('index.html')
+                home_button.set_text('HOME')
+                home_button.set_text_color(248, 248, 242)
+                home_button.set_font_size(34)
+            app.spacer()
+
+        app.spacer()
+
+        with app.rectangle('menu_rect') as menu_rect:
+            menu_rect.set_layout(Layout.COLUMN)
+
+            app.spacer()
+            with app.rectangle('menu') as menu:
+                menu.set_layout(Layout.ROW)
+
+                with app.rectangle('menu_projects') as menu_projects:
+                    menu_projects.set_link('projects/')
+                    menu_projects.set_text('Projects')
+                    menu_projects.set_text_color(248, 248, 242)
+
+                app.spacer(30)
+
+                with app.rectangle('menu_blog') as menu_blog:
+                    menu_blog.set_link('posts/')
+                    menu_blog.set_text('Blog')
+                    menu_blog.set_text_color(248, 248, 242)
+
+                app.spacer(30)
+
+                with app.rectangle('menu_about') as menu_about:
+                    menu_about.set_link('about/')
+                    menu_about.set_text('About')
+                    menu_about.set_text_color(248, 248, 242)
+
+                app.spacer(30)
+
+            app.spacer()
+```
+Note the use of `app.spacer()`. This is used for spacing, padding, and centering. For example, for the home link, we use the following code:
+```python
+with app.rectangle('home_button_rect') as home_button_rect:
+    home_button_rect.set_layout(Layout.COLUMN)
+    app.spacer()
+    with app.rectangle('home_button') as home_button:
+        home_button.set_link('index.html')
+        home_button.set_text('HOME')
+        home_button.set_text_color(248, 248, 242)
+        home_button.set_font_size(34)
+    app.spacer()
+```
+The two spacers above are used to center the link vertically.  I made them red in the image below,
+<img src="/files/home_button_spacer_example.png" style="display:block; padding:1em 0;"/>
+
+
