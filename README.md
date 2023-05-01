@@ -1,6 +1,8 @@
 # py2web
 
+<p align="center">
 ![py2web logo](/files/py2web_icon_single.svg)
+</p>
 
 py2web is an experimental library for generating html interfaces programmatically. By using just a subset of html/css, we hope to make the API easier to use than the mess that html/css has become.
 
@@ -126,6 +128,8 @@ with app.rectangle('home_button_rect') as home_button_rect:
     app.spacer()
 ```
 The two spacers above are used to center the link vertically.  I made them red in the image below,
+<p align="center">
 ![home logo with spacers painted red](/files/home_button_spacer_example.png)
+</p>
 
 
