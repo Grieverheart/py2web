@@ -129,7 +129,6 @@ with app.rectangle('home_button_rect') as home_button_rect:
 ```
 The two spacers above are used to center the link vertically.  I made them red in the image below,
 <p align="center">
-![home logo with spacers painted red](/files/home_button_spacer_example.png)
 <img src="/files/home_button_spacer_example.png" style="max-width: 100%;"/>
 </p>
 
