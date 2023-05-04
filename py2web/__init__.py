@@ -522,10 +522,10 @@ class Application(object):
         #css += 'display: block;\n'
         #css += 'overflow: hidden;\n'
 
-        if rect.layout == Layout.NONE:
-            if rect.position[0] is not None or rect.position[1] is not None:
-                css += 'position: absolute;\n'
+        if rect.position[0] is not None or rect.position[1] is not None:
+            css += 'position: absolute;\n'
 
+        if rect.layout == Layout.NONE:
             if isinstance(rect.position[0], Number):
                 if rect.pivot == Pivot.TOP_LEFT or rect.pivot == Pivot.BOTTOM_LEFT:
                     css += f'left: {rect.position[0]}px;\n'
